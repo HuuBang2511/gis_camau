@@ -288,7 +288,7 @@ img.leaflet-marker-icon.leaflet-zoom-animated.leaflet-interactive {
                 <label><input type="checkbox" onchange="toggleLayer('wmsToanhaLayer')"> Tòa nhà</label><br>
                 <label><input type="checkbox" onchange="toggleLayer('wmsThuyheLayer')"> Thủy hệ</label><br>
                 <label><input type="checkbox" onchange="toggleLayer('wmsSanbayLayer')"> Sân bay</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsRungLayer')"> Trạm cứu hỏa</label><br>
+                <label><input type="checkbox" onchange="toggleLayer('wmsRungLayer')"> Rừng</label><br>
                 <label><input type="checkbox" onchange="toggleLayer('wmsPolvhxhLayer')"> Vùng kinh tế văn hóa xã hội</label><br>
                 <label><input type="checkbox" onchange="toggleLayer('wmsPoivhxhLayer')"> Điểm kinh tế văn hóa xã hội</label><br>
                 <label><input type="checkbox" onchange="toggleLayer('wmsDentinhieuLayer')"> Đèn tín hiệu</label><br>
