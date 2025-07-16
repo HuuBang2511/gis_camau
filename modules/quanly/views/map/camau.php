@@ -263,7 +263,7 @@ div#tabs {
     <div id="tabs">
         <div class="tabs-header">
             <a href="<?= Yii::$app->homeUrl ?>" target="_blank">
-                <img src="http://hpngis.online/resources/images/logo_hpngis.png" alt="Logo" style="width: 200px; height: auto; float: left; margin-right: 10px;">
+                <img src="https://gis.nongdanviet.net/resources/images/logo_map.jpg" alt="Logo" style="width: 200px; height: auto; float: left; margin-right: 10px;">
             </a>
             <button id="back-to-map-mobile-btn" onclick="toggleTabVisibility()">X</button>
         </div>
@@ -315,7 +315,7 @@ var map = L.map('map', {
 }).setView(center, 16);
 
 var baseMaps = {
-    "Bản đồ nền": L.tileLayer('http://103.9.77.141:8080/geoserver/gwc/service/wmts?' +
+    "Bản đồ nền": L.tileLayer('https://nongdanviet.net/geoserver/gwc/service/wmts?' +
         'layer=giscapnuoc:basemap_capnuoc&style=&tilematrixset=EPSG:900913&Service=WMTS&Request=GetTile&Version=1.0.0' +
         '&Format=image/png&TileMatrix=EPSG:900913:{z}&TileCol={x}&TileRow={y}', {
             tileSize: 256,
@@ -372,7 +372,7 @@ var highlightLayer = L.featureGroup().addTo(map); // Lớp để highlight đố
 var myPane = map.createPane('myPane');
 myPane.style.zIndex = 650;
 
-var wmsLoogerLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsLoogerLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:gd_data_logger',
     format: 'image/png',
     transparent: true,
@@ -381,7 +381,7 @@ var wmsLoogerLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapn
     pane: 'myPane'
 });
 
-var wmsDonghoKhLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsDonghoKhLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:gd_dongho_kh_gd',
     format: 'image/png',
     transparent: true,
@@ -390,7 +390,7 @@ var wmsDonghoKhLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/gisca
     pane: 'myPane'
 }).addTo(map);
 
-var wmsDonghoTongLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsDonghoTongLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:gd_dongho_tong_gd',
     format: 'image/png',
     transparent: true,
@@ -399,7 +399,7 @@ var wmsDonghoTongLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/gis
     pane: 'myPane'
 }).addTo(map);
 
-var wmsHamLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsHamLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:gd_hamkythuat',
     format: 'image/png',
     transparent: true,
@@ -408,7 +408,7 @@ var wmsHamLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc
     pane: 'myPane'
 }).addTo(map);
 
-var wmsOngCaiLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsOngCaiLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:gd_ongcai',
     format: 'image/png',
     transparent: true,
@@ -417,7 +417,7 @@ var wmsOngCaiLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapn
     pane: 'myPane'
 }).addTo(map);
 
-var wmsOngCaiDHLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsOngCaiDHLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:gd_ongcai',
     format: 'image/png',
     transparent: true,
@@ -426,7 +426,7 @@ var wmsOngCaiDHLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/gisca
     pane: 'myPane'
 }).addTo(map);
 
-var wmsOngNganhLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsOngNganhLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:gd_ongnganh',
     format: 'image/png',
     transparent: true,
@@ -435,7 +435,7 @@ var wmsOngNganhLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/gisca
     pane: 'myPane'
 }).addTo(map);
 
-var wmsOngTruyenDanLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsOngTruyenDanLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:v2_4326_ONGTRUYENDAN',
     format: 'image/png',
     transparent: true,
@@ -444,7 +444,7 @@ var wmsOngTruyenDanLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/g
     pane: 'myPane'
 }).addTo(map);
 
-var wmsTrambomLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsTrambomLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:gd_trambom',
     format: 'image/png',
     transparent: true,
@@ -452,7 +452,7 @@ var wmsTrambomLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscap
     pane: 'myPane'
 }).addTo(map);
 
-var wmsTramCuuHoaLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsTramCuuHoaLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:gd_tramcuuhoa',
     format: 'image/png',
     transparent: true,
@@ -461,7 +461,7 @@ var wmsTramCuuHoaLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/gis
     pane: 'myPane'
 }).addTo(map);
 
-var wmsVanPhanPhoiLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsVanPhanPhoiLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:gd_vanphanphoi',
     format: 'image/png',
     transparent: true,
@@ -470,7 +470,7 @@ var wmsVanPhanPhoiLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/gi
     pane: 'myPane'
 }).addTo(map);
 
-var wmsSucoLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsSucoLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:v2_gd_suco',
     format: 'image/png',
     transparent: true,
@@ -479,7 +479,7 @@ var wmsSucoLayer = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuo
     pane: 'myPane'
 }).addTo(map);
 
-var wmsDMA = L.tileLayer.wms('http://103.9.77.141:8080/geoserver/giscapnuoc/wms', {
+var wmsDMA = L.tileLayer.wms('https://nongdanviet.net/geoserver/giscapnuoc/wms', {
     layers: 'giscapnuoc:v2_4326_DMA',
     format: 'image/png',
     transparent: true,
@@ -879,23 +879,23 @@ legendControl.onAdd = function(map) {
     var div = L.DomUtil.create('div', 'legend');
     div.innerHTML += '<h4>Legend</h4>';
     div.innerHTML +=
-        '<img src="http://103.9.77.141:8080/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_dongho_kh_gd"> Đồng hồ KH<br>';
+        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_dongho_kh_gd"> Đồng hồ KH<br>';
     div.innerHTML +=
-        '<img src="http://103.9.77.141:8080/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_dongho_tong_gd"> Đồng hồ tổng<br>';
+        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_dongho_tong_gd"> Đồng hồ tổng<br>';
     div.innerHTML +=
-        '<img src="http://103.9.77.141:8080/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_trambom"> Trạm bơm<br>';
+        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_trambom"> Trạm bơm<br>';
     div.innerHTML +=
-        '<img src="http://103.9.77.141:8080/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_tramcuuhoa"> Trạm cứu hỏa<br>';
+        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_tramcuuhoa"> Trạm cứu hỏa<br>';
     div.innerHTML +=
-        '<img src="http://103.9.77.141:8080/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_vanphanphoi"> Van phân phối<br>';
+        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_vanphanphoi"> Van phân phối<br>';
     div.innerHTML +=
-        '<img src="http://103.9.77.141:8080/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_hamkythuat"> Hầm kỹ thuật<br>';
+        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_hamkythuat"> Hầm kỹ thuật<br>';
     div.innerHTML +=
-        '<img src="http://103.9.77.141:8080/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_ongcai"> Ống cái<br>';
+        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_ongcai"> Ống cái<br>';
     div.innerHTML +=
-        '<img src="http://103.9.77.141:8080/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_ongnganh"> Ống ngánh<br>';
+        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_ongnganh"> Ống ngánh<br>';
     div.innerHTML +=
-        '<img src="http://103.9.77.141:8080/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_suco"> Sự cố<br>';
+        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_suco"> Sự cố<br>';
     return div;
 };
 
