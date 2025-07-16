@@ -13,7 +13,7 @@ return [
     'siteName' => 'GIS map cà mau',
     'loginPage' => [
         'logoUrl' => '/resources/images/logocamau.jpg',
-        'backgroundUrl' => 'https://ytth.hcmgis.vn/resources/images/backgrounds/ythd.jpg'
+        'backgroundUrl' => '/resources/images/banner_bg.jpg'
     ],
     'adminSidebar' => [[
         'name' => 'Quản trị hệ thống',
