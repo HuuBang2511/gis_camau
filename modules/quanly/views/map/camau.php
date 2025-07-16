@@ -253,6 +253,10 @@ div#tabs {
     height: auto;
     margin-right: 5px;
 }
+
+img.leaflet-marker-icon.leaflet-zoom-animated.leaflet-interactive {
+    z-index: 800 !important;
+}
 </style>
 
 <!-- Tải plugin Leaflet-LocateControl -->
@@ -318,23 +322,11 @@ var map = L.map('map', {
     defaultExtentControl: true
 }).setView(center, 11);
 
-var baseMaps = {
-    // "Bản đồ nền": L.tileLayer('https://nongdanviet.net/geoserver/gwc/service/wmts?' +
-    //     'layer=gis_camau:basemap_capnuoc&style=&tilematrixset=EPSG:900913&Service=WMTS&Request=GetTile&Version=1.0.0' +
-    //     '&Format=image/png&TileMatrix=EPSG:900913:{z}&TileCol={x}&TileRow={y}', {
-    //         tileSize: 256,
-    //         minZoom: 0,
-    //         maxZoom: 22,
-    //         attribution: '',
-    //         pane: 'tilePane',
-    //         noWrap: true,
-    //         bounds: [
-    //             [-85.0511, -180],
-    //             [85.0511, 180]
-    //         ],
-    //         interactive: false
-    //     }),
+// Tạo pane cho highlightLayer với zIndex cao hơn
+map.createPane('highlightPane');
+map.getPane('highlightPane').style.zIndex = 700; // Tăng lên 700 để ưu tiên hơn
 
+var baseMaps = {
     "Bản đồ Google": L.tileLayer('http://{s}.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
         maxZoom: 22,
         subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
@@ -345,7 +337,8 @@ var baseMaps = {
         subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
     })
 };
-//Thêm lớp L.Control.Locate
+
+// Thêm lớp L.Control.Locate
 var locateControl = new L.Control.Locate({
     position: 'bottomleft',
     strings: {
@@ -371,7 +364,9 @@ L.control.scale({
     imperial: false,
     maxWidth: 150
 }).addTo(map);
-var highlightLayer = L.featureGroup().addTo(map); // Lớp để highlight đối tượng được chọn
+
+// Tạo highlightLayer với pane riêng
+var highlightLayer = L.featureGroup([], { pane: 'highlightPane' }).addTo(map);
 
 var myPane = map.createPane('myPane');
 myPane.style.zIndex = 650;
@@ -500,8 +495,6 @@ var wmsDaoLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/w
     pane: 'myPane'
 });
 
-
-
 function toggleLayer(layerName) {
     var layerMap = {
         "wmsPhuongxaLayer": wmsPhuongxaLayer,
@@ -517,8 +510,8 @@ function toggleLayer(layerName) {
         "wmsPolvhxhLayer": wmsPolvhxhLayer,
         "wmsPoivhxhLayer": wmsPoivhxhLayer,
         "wmsDentinhieuLayer": wmsDentinhieuLayer,
-        "wmsGiaothongLayer" : wmsGiaothongLayer,
-        "wmsBenxeLayer" : wmsBenxeLayer,
+        "wmsGiaothongLayer": wmsGiaothongLayer,
+        "wmsBenxeLayer": wmsBenxeLayer,
         "wmsDaoLayer": wmsDaoLayer,
         "highlightLayer": highlightLayer
     };
@@ -556,227 +549,22 @@ function getFeatureInfoUrl(layer, latlng, url) {
     return FeatureInfoUrl;
 }
 
-// map.on('click', function(e) {
-//     const layers = map._layers;
-//     const isMobile = window.innerWidth <= 768;
-//     let tabShown = false;
-
-//     for (const idx in layers) {
-//         const layer = layers[idx];
-//         if (layer.wmsParams && layer._url && layer.wmsParams.layers != "") {
-//             let url = getFeatureInfoUrl(layer.wmsParams.layers, e.latlng, layer._url);
-
-//             let layerName = layer.wmsParams.layers;
-//             layerName = layerName.split(':');
-//             layerName = String(layerName[1]);
-
-//             console.log(layerName);
-
-//             fetch(url)
-//                 .then(function(res) {
-//                     return res.json()
-//                 })
-//                 .then(function(geojsonData) {
-//                     if (geojsonData.features && geojsonData.features.length > 0) {
-//                         var properties = geojsonData.features[0].properties;
-
-//                         console.log(properties);
-
-//                         if (layer.wmsParams.layers) {
-//                             switch (layerName) {
-//                                 case 'camau_vungbien':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>Shape_Length	:</strong></td><td>" +
-//                                         properties.Shape_Length	 + "</td></tr>" +
-//                                         "<tr><td><strong>Shape_Area:</strong></td><td>" +
-//                                         properties.Shape_Area + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_truso_tinh':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>ten:</strong></td><td>" +
-//                                         properties.ten	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_truso_px':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>ten:</strong></td><td>" +
-//                                         properties.ten	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_tonggiao':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>name:</strong></td><td>" +
-//                                         properties.name	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_toanha':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>area_in_me:</strong></td><td>" +
-//                                         properties.area_in_me + "</td></tr>" +
-//                                         "<tr><td><strong>confidence:</strong></td><td>" +
-//                                         properties.confidence + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_thuyhe':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>ten_kenh_rach:</strong></td><td>" +
-//                                         properties.ten_kenh_rach + "</td></tr>" +
-//                                         "<tr><td><strong>chieu_dai:</strong></td><td>" +
-//                                         properties.chieu_dai + "</td></tr>" +
-//                                         "<tr><td><strong>chieu_rong:</strong></td><td>" +
-//                                         properties.chieu_rong + "</td></tr>" +
-//                                         "<tr><td><strong>ti_le:</strong></td><td>" +
-//                                         properties.ti_le + "</td></tr>" +
-//                                         "<tr><td><strong>Shape_Length:</strong></td><td>" +
-//                                         properties.Shape_Length + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_sanbay':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>name:</strong></td><td>" +
-//                                         properties.name + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_sanbay':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>s:</strong></td><td>" +
-//                                         properties.s + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_sanbay':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>ten_tinh	:</strong></td><td>" +
-//                                         properties.ten_tinh	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_poi_polygon':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>fclass	:</strong></td><td>" +
-//                                         properties.fclass	 + "</td></tr>" +
-//                                         "<tr><td><strong>name	:</strong></td><td>" +
-//                                         properties.name	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_poi_point':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>fclass	:</strong></td><td>" +
-//                                         properties.fclass	 + "</td></tr>" +
-//                                         "<tr><td><strong>name	:</strong></td><td>" +
-//                                         properties.name	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_gt':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>ten_duong	:</strong></td><td>" +
-//                                         properties.ten_duong	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_dentinhieu':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>fclass	:</strong></td><td>" +
-//                                         properties.fclass	 + "</td></tr>" +
-//                                         "<tr><td><strong>name	:</strong></td><td>" +
-//                                         properties.name	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_debien':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>ten	:</strong></td><td>" +
-//                                         properties.ten	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_debien':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>ten_vung	:</strong></td><td>" +
-//                                         properties.ten_vung	 + "</td></tr>" +
-//                                         "<tr><td><strong>dien_tich	:</strong></td><td>" +
-//                                         properties.dien_tich	 + "</td></tr>" +
-//                                         "<tr><td><strong>tinh_thanh	:</strong></td><td>" +
-//                                         properties.tinh_thanh	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                                 case 'camau_benxe':
-//                                     var popupContent = "<div class='popup-content'>" +
-//                                         "<table>" +
-//                                         "<tr><td><strong>fclass	:</strong></td><td>" +
-//                                         properties.fclass	 + "</td></tr>" +
-//                                         "<tr><td><strong>name	:</strong></td><td>" +
-//                                         properties.name	 + "</td></tr>" +
-//                                         "</table>" +
-//                                         "</div>";
-//                                     break;
-//                             }
-//                         }
-
-//                         console.log(popupContent);
-//                         document.getElementById('feature-details').innerHTML = popupContent;
-//                         highlightLayer.clearLayers(); // Xóa highlight trước đó (nếu có)
-//                         var highlightedFeature = L.geoJSON(geojsonData.features[0]);
-//                         highlightLayer.addLayer(highlightedFeature);
-//                         if (isMobile) {
-//                             openTab('info');
-//                             // Chỉ toggle tab nếu nó đang ẩn
-//                             const tabs = document.getElementById('tabs');
-//                             if (!tabs.classList.contains('active')) {
-//                                 toggleTabVisibility();
-//                                 tabShown = true;
-//                             }
-//                         }
-//                     } else if (isMobile && tabShown) {
-//                         // Giữ tab hiển thị nếu đã mở
-//                     }
-//                 })
-//         }
-//     }
-// });
-
 map.on('click', function(e) {
     const isMobile = window.innerWidth <= 768;
     let tabShown = false;
 
-    // Danh sách các lớp WMS với thứ tự ưu tiên (từ trên xuống dưới)
+    // Danh sách các lớp WMS với zIndex
     const wmsLayers = [
-        { name: 'camau_px', layer: wmsPhuongxaLayer, zIndex: 150 },
-        { name: 'camau_vungbien', layer: wmsVungbien, zIndex: 250 },
+        { name: 'camau_px', layer: wmsPhuongxaLayer, zIndex: 450 },
+        { name: 'camau_vungbien', layer: wmsVungbien, zIndex: 450 },
         { name: 'camau_truso_tinh', layer: wmsTrusotinhLayer, zIndex: 650 },
-        { name: 'camau_truso_px', layer: wmsTrusophuongxaLayer, zIndex: 750 },
-        { name: 'camau_debien', layer: wmsDebienLayer, zIndex: 550 },
+        { name: 'camau_truso_px', layer: wmsTrusophuongxaLayer, zIndex: 650 },
+        { name: 'camau_debien', layer: wmsDebienLayer, zIndex: 450 },
         { name: 'camau_tongiao', layer: wmsTongiaoLayer, zIndex: 650 },
-        { name: 'camau_toanha', layer: wmsToanhaLayer, zIndex: 650 },
-        { name: 'camau_thuyhe', layer: wmsThuyheLayer, zIndex: 650 },
-        { name: 'camau_sanbay', layer: wmsSanbayLayer, zIndex: 650 },
-        { name: 'camau_rung', layer: wmsRungLayer, zIndex: 650 },
+        { name: 'camau_toanha', layer: wmsToanhaLayer, zIndex: 550 },
+        { name: 'camau_thuyhe', layer: wmsThuyheLayer, zIndex: 550 },
+        { name: 'camau_sanbay', layer: wmsSanbayLayer, zIndex: 550 },
+        { name: 'camau_rung', layer: wmsRungLayer, zIndex: 550 },
         { name: 'camau_poi_polygon', layer: wmsPolvhxhLayer, zIndex: 650 },
         { name: 'camau_poi_point', layer: wmsPoivhxhLayer, zIndex: 650 },
         { name: 'camau_dentinhieu', layer: wmsDentinhieuLayer, zIndex: 650 },
@@ -785,10 +573,10 @@ map.on('click', function(e) {
         { name: 'camau_dao', layer: wmsDaoLayer, zIndex: 650 }
     ];
 
-    // Lọc các lớp WMS đang hiển thị và sắp xếp theo zIndex (nếu có) hoặc thứ tự thêm vào
+    // Lọc các lớp WMS đang hiển thị và sắp xếp theo zIndex
     const visibleLayers = wmsLayers
         .filter(item => map.hasLayer(item.layer))
-        .sort((a, b) => (b.zIndex || 0) - (a.zIndex || 0)); // Sắp xếp giảm dần theo zIndex
+        .sort((a, b) => (b.zIndex || 0) - (a.zIndex || 0));
 
     if (visibleLayers.length === 0) {
         document.getElementById('feature-details').innerHTML = 'Chọn một đối tượng trên bản đồ để xem thông tin';
@@ -850,7 +638,6 @@ map.on('click', function(e) {
             case 'camau_toanha':
                 popupContent += `
                     <tr><td><strong>Diện tích:</strong></td><td>${properties.area_in_me || 'Không có'}</td></tr>
-                    <tr><td><strong>Độ tin cậy:</strong></td Ascending
                     <tr><td><strong>Độ tin cậy:</strong></td><td>${properties.confidence || 'Không có'}</td></tr>`;
                 break;
             case 'camau_thuyhe':
@@ -871,7 +658,7 @@ map.on('click', function(e) {
                 break;
             case 'camau_px':
                 popupContent += `
-                    <tr><td><strong>Tên:</strong></td><td>${properties.ten_dvhc || 'Không có'}</td></tr>`;
+                    <tr><td><strong>Tên tỉnh:</strong></td><td>${properties.ten_tinh || 'Không có'}</td></tr>`;
                 break;
             case 'camau_dao':
                 popupContent += `
@@ -886,14 +673,16 @@ map.on('click', function(e) {
         popupContent += "</table></div>";
         document.getElementById('feature-details').innerHTML = popupContent;
 
-        // Đ打ち dấu đối tượng được click
+        // Đánh dấu đối tượng được click với pane riêng và style nổi bật
         highlightLayer.clearLayers();
         const highlightedFeature = L.geoJSON(data.features[0], {
+            pane: 'highlightPane', // Sử dụng pane có zIndex cao
             style: {
                 color: '#ff0000',
-                weight: 3,
+                weight: 5, // Tăng độ dày viền để nổi bật
                 opacity: 1,
-                fillOpacity: 0.2
+                fillOpacity: 0.3, // Tăng độ mờ fill để dễ thấy hơn
+                dashArray: '5, 5' // Thêm hiệu ứng gạch ngang
             }
         });
         highlightLayer.addLayer(highlightedFeature);
@@ -979,24 +768,36 @@ var legendControl = L.control({
 legendControl.onAdd = function(map) {
     var div = L.DomUtil.create('div', 'legend');
     div.innerHTML += '<h4>Legend</h4>';
+    // div.innerHTML +=
+    //     '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_px"> Phường xã<br>';
     div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_dongho_kh_gd"> Đồng hồ KH<br>';
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_vungbien"> Vùng biển<br>';
     div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_dongho_tong_gd"> Đồng hồ tổng<br>';
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_truso_tinh"> Trụ sở tỉnh<br>';
     div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_trambom"> Trạm bơm<br>';
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_truso_px"> Trụ sở phường xã<br>';
     div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_tramcuuhoa"> Trạm cứu hỏa<br>';
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_debien"> Đê biển<br>';
     div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_vanphanphoi"> Van phân phối<br>';
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_tongiao"> Tôn giáo<br>';
     div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_hamkythuat"> Hầm kỹ thuật<br>';
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_toanha"> Tòa nhà<br>';
     div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_ongcai"> Ống cái<br>';
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_thuyhe"> Thủy hệ<br>';
     div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_ongnganh"> Ống ngánh<br>';
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_sanbay"> Sân bay<br>';
     div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/giadinh/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=giadinh:gd_suco"> Sự cố<br>';
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_rung"> Rừng<br>';
+    div.innerHTML +=
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_poi_polygon"> KTVHXH<br>';
+    div.innerHTML +=
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_poi_point"> KTVHXH<br>';
+    div.innerHTML +=
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_gt"> Giao thông<br>';
+    div.innerHTML +=
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_benxe"> Bến xe<br>';
+    div.innerHTML +=
+        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_dao"> Đảo<br>';
     return div;
 };
 
