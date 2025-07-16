@@ -10,9 +10,9 @@ return [
         'lat' => 10.820056203215767,
         'lng' => 106.79050235703482,
     ],
-    'siteName' => 'GIS Cap nuoc',
+    'siteName' => 'GIS map cà mau',
     'loginPage' => [
-        'logoUrl' => 'https://cdn.thuvienphapluat.vn/phap-luat/2022/TD/220702/nuoc-sinh-hoat.png',
+        'logoUrl' => '/resources/images/logocamau.jpg',
         'backgroundUrl' => 'https://ytth.hcmgis.vn/resources/images/backgrounds/ythd.jpg'
     ],
     'adminSidebar' => [[
