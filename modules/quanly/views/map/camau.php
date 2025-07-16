@@ -616,14 +616,14 @@ map.on('click', function(e) {
         switch (layerName) {
             case 'camau_vungbien':
                 popupContent += `
-                    <tr><td><strong>Chiều dài:</strong></td><td>${properties.Shape_Length || 'Không có'}</td></tr>
-                    <tr><td><strong>Diện tích:</strong></td><td>${properties.Shape_Area || 'Không có'}</td></tr>`;
+                    <tr><td><strong>Shape_Length:</strong></td><td>${properties.Shape_Length || 'Không có'}</td></tr>
+                    <tr><td><strong>Shape_Area:</strong></td><td>${properties.Shape_Area || 'Không có'}</td></tr>`;
                 break;
             case 'camau_truso_tinh':
             case 'camau_truso_px':
             case 'camau_debien':
                 popupContent += `
-                    <tr><td><strong>Tên:</strong></td><td>${properties.ten || 'Không có'}</td></tr>`;
+                    <tr><td><strong>ten:</strong></td><td>${properties.ten || 'Không có'}</td></tr>`;
                 break;
             case 'camau_tongiao':
             case 'camau_sanbay':
@@ -632,39 +632,39 @@ map.on('click', function(e) {
             case 'camau_dentinhieu':
             case 'camau_benxe':
                 popupContent += `
-                    <tr><td><strong>Loại:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
-                    <tr><td><strong>Tên:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
+                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
+                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
                 break;
             case 'camau_toanha':
                 popupContent += `
-                    <tr><td><strong>Diện tích:</strong></td><td>${properties.area_in_me || 'Không có'}</td></tr>
-                    <tr><td><strong>Độ tin cậy:</strong></td><td>${properties.confidence || 'Không có'}</td></tr>`;
+                    <tr><td><strong>area_in_me:</strong></td><td>${properties.area_in_me || 'Không có'}</td></tr>
+                    <tr><td><strong>confidence:</strong></td><td>${properties.confidence || 'Không có'}</td></tr>`;
                 break;
             case 'camau_thuyhe':
                 popupContent += `
-                    <tr><td><strong>Tên kênh rạch:</strong></td><td>${properties.ten_kenh_rach || 'Không có'}</td></tr>
-                    <tr><td><strong>Chiều dài:</strong></td><td>${properties.chieu_dai || 'Không có'}</td></tr>
-                    <tr><td><strong>Chiều rộng:</strong></td><td>${properties.chieu_rong || 'Không có'}</td></tr>
-                    <tr><td><strong>Tỉ lệ:</strong></td><td>${properties.ti_le || 'Không có'}</td></tr>
-                    <tr><td><strong>Chiều dài hình học:</strong></td><td>${properties.Shape_Length || 'Không có'}</td></tr>`;
+                    <tr><td><strong>ten_kenh_rach:</strong></td><td>${properties.ten_kenh_rach || 'Không có'}</td></tr>
+                    <tr><td><strong>chieu_dai:</strong></td><td>${properties.chieu_dai || 'Không có'}</td></tr>
+                    <tr><td><strong>chieu_rong:</strong></td><td>${properties.chieu_rong || 'Không có'}</td></tr>
+                    <tr><td><strong>ti_le:</strong></td><td>${properties.ti_le || 'Không có'}</td></tr>
+                    <tr><td><strong>Shape_Length:</strong></td><td>${properties.Shape_Length || 'Không có'}</td></tr>`;
                 break;
             case 'camau_gt':
                 popupContent += `
-                    <tr><td><strong>Tên đường:</strong></td><td>${properties.ten_duong || 'Không có'}</td></tr>`;
+                    <tr><td><strong>ten_duong:</strong></td><td>${properties.ten_duong || 'Không có'}</td></tr>`;
                 break;
             case 'camau_rung':
                 popupContent += `
-                    <tr><td><strong>Diện tích:</strong></td><td>${properties.s || 'Không có'}</td></tr>`;
+                    <tr><td><strong>dien_tich:</strong></td><td>${properties.s || 'Không có'}</td></tr>`;
                 break;
             case 'camau_px':
                 popupContent += `
-                    <tr><td><strong>Tên tỉnh:</strong></td><td>${properties.ten_tinh || 'Không có'}</td></tr>`;
+                    <tr><td><strong>ten_dvhc:</strong></td><td>${properties.ten_dvhc || 'Không có'}</td></tr>`;
                 break;
             case 'camau_dao':
                 popupContent += `
-                    <tr><td><strong>Tên vùng:</strong></td><td>${properties.ten_vung || 'Không có'}</td></tr>
-                    <tr><td><strong>Diện tích:</strong></td><td>${properties.dien_tich || 'Không có'}</td></tr>
-                    <tr><td><strong>Tỉnh thành:</strong></td><td>${properties.tinh_thanh || 'Không có'}</td></tr>`;
+                    <tr><td><strong>ten_vung:</strong></td><td>${properties.ten_vung || 'Không có'}</td></tr>
+                    <tr><td><strong>dien_tich:</strong></td><td>${properties.dien_tich || 'Không có'}</td></tr>
+                    <tr><td><strong>tinh_thanh:</strong></td><td>${properties.tinh_thanh || 'Không có'}</td></tr>`;
                 break;
             default:
                 popupContent += `<tr><td colspan='2'>Không có thông tin chi tiết</td></tr>`;
