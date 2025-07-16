@@ -767,11 +767,11 @@ map.on('click', function(e) {
 
     // Danh sách các lớp WMS với thứ tự ưu tiên (từ trên xuống dưới)
     const wmsLayers = [
-        { name: 'camau_px', layer: wmsPhuongxaLayer, zIndex: 550 },
-        { name: 'camau_vungbien', layer: wmsVungbien, zIndex: 550 },
+        { name: 'camau_px', layer: wmsPhuongxaLayer, zIndex: 150 },
+        { name: 'camau_vungbien', layer: wmsVungbien, zIndex: 250 },
         { name: 'camau_truso_tinh', layer: wmsTrusotinhLayer, zIndex: 650 },
         { name: 'camau_truso_px', layer: wmsTrusophuongxaLayer, zIndex: 750 },
-        { name: 'camau_debien', layer: wmsDebienLayer, zIndex: 650 },
+        { name: 'camau_debien', layer: wmsDebienLayer, zIndex: 550 },
         { name: 'camau_tongiao', layer: wmsTongiaoLayer, zIndex: 650 },
         { name: 'camau_toanha', layer: wmsToanhaLayer, zIndex: 650 },
         { name: 'camau_thuyhe', layer: wmsThuyheLayer, zIndex: 650 },
@@ -871,7 +871,7 @@ map.on('click', function(e) {
                 break;
             case 'camau_px':
                 popupContent += `
-                    <tr><td><strong>Tên tỉnh:</strong></td><td>${properties.ten_tinh || 'Không có'}</td></tr>`;
+                    <tr><td><strong>Tên:</strong></td><td>${properties.ten_dvhc || 'Không có'}</td></tr>`;
                 break;
             case 'camau_dao':
                 popupContent += `
