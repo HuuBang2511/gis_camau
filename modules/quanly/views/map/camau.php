@@ -184,11 +184,11 @@ $this->params['hideHero'] = true;
     }
 
     .leaflet-bottom.leaflet-right {
-        margin-bottom: 70px;
+        margin-bottom: 80px;
     }
 
     .leaflet-bottom.leaflet-left{
-        margin-bottom: 90px;
+        margin-bottom: 100px;
     }
 }
 
