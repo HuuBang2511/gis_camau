@@ -1,894 +1,537 @@
 <?php
-use yii\web\View;
-use yii\helpers\Html;
-use yii\helpers\ArrayHelper;
-use app\widgets\maps\LeafletMapAsset;
-use app\widgets\maps\plugins\leafletlocate\LeafletLocateAsset;
-use kartik\depdrop\DepDrop;
-use kartik\form\ActiveForm;
-use kartik\select2\Select2;
+
 use yii\helpers\Url;
 
-LeafletMapAsset::register($this);
-\app\widgets\maps\plugins\leafletprint\PrintMapAsset::register($this);
-\app\widgets\maps\plugins\markercluster\MarkerClusterAsset::register($this);
-\app\widgets\maps\plugins\leaflet_measure\LeafletMeasureAsset::register($this);
-LeafletLocateAsset::register($this);
+// Đăng ký các asset cần thiết.
+// Giả định rằng các asset này đã được cấu hình đúng trong Yii2 AssetBundle của bạn.
+app\widgets\maps\LeafletMapAsset::register($this);
+app\widgets\maps\plugins\leafletprint\PrintMapAsset::register($this);
+app\widgets\maps\plugins\markercluster\MarkerClusterAsset::register($this);
+app\widgets\maps\plugins\leaflet_measure\LeafletMeasureAsset::register($this);
+app\widgets\maps\plugins\leafletlocate\LeafletLocateAsset::register($this);
 
-$this->title = 'Bản đồ';
+
+$this->title = 'Bản đồ GIS';
 $this->params['hideHero'] = true;
 ?>
+<!-- Import Google Font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
-#map {
-    width: 100%;
-    height: 100vh;
-}
-
-#mapInfo {
-    display: flex;
-    height: 100vh;
-}
-
-#mapTong {
-    width: 80%;
-    transition: width 0.3s;
-    position: relative;
-    z-index: 1000;
-}
-
-#map {
-    position: relative;
-    z-index: 0;
-    height: 100%;
-}
-
-.leaflet-pane {
-    z-index: 400;
-}
-.leaflet-overlay-pane {
-    z-index: 650;
-}
-
-/* Tab styling */
-#tabs {
-    width: 20%;
-    background: #fff;
-    border-right: 1px solid #ccc;
-    transition: transform 0.3s ease-in-out;
-    position: relative;
-    transform: translateX(0);
-}
-
-#tabs.toggling {
-    pointer-events: none;
-    transition: transform 0.3s ease-in-out;
-}
-
-#tabs.active {
-    transform: translateX(0); /* Fully visible */
-}
-
-.tab-buttons {
-    display: flex;
-    border-bottom: 1px solid #ccc;
-}
-
-.tab-button {
-    flex: 1;
-    padding: 10px;
-    text-align: center;
-    cursor: pointer;
-    background: #f0f0f0;
-    border: none;
-}
-
-.tab-button.active {
-    background: #fff;
-    border-bottom: 2px solid #007bff;
-}
-
-.tab-content {
-    display: none;
-    padding: 10px;
-    height: calc(100vh - 40px);
-    overflow-y: auto;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-#layer-content h5, #info-content h5 {
-    margin-top: 20px;
-}
-
-#layer-control label {
-    display: block;
-    margin: 5px 0;
-}
-
-/* Mobile-specific back button */
-#back-to-map-btn {
-    display: none;
-    width: 100%;
-    padding: 10px;
-    margin-top: 10px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
-.tabs-header{
-    display:flex;
-    justify-content: space-between;
-}
-
-#back-to-map-mobile-btn{
-    display:none;
-}
-
-@media screen and (max-width: 768px) {
-    #mapInfo {
-        flex-direction: column;
+    /* Sử dụng biến CSS để dễ dàng thay đổi theme */
+    :root {
+        --primary-color: #007bff;
+        --light-gray: #f1f5f9;
+        --border-color: #e2e8f0;
+        --background-color: #fff;
+        --text-color: #334155;
+        --text-light-color: #64748b;
+        --shadow-color: rgba(0, 0, 0, 0.1);
+        --transition-speed: 0.3s;
+        --font-family: 'Inter', sans-serif;
     }
 
-    #tabs {
+    body, html {
+        margin: 0;
+        padding: 0;
+        height: 100%;
         width: 100%;
-        position: absolute;
-        top: 0;
-        left: 0;
-        transform: translateX(-100%); /* Hidden by default on mobile */
-        z-index: 1001;
-        height: 100vh;
-        background: #fff;
+        overflow: hidden; /* Ngăn cuộn trang */
+        font-family: var(--font-family);
+        color: var(--text-color);
     }
 
-    #tabs.active {
-        transform: translateX(0); /* Visible when active */
+    #mapInfo {
+        display: flex;
+        height: 100vh;
     }
 
     #mapTong {
-        width: 100%;
-        transition: width 0.3s;
+        flex-grow: 1;
+        height: 100%;
+        transition: width var(--transition-speed);
+        position: relative;
     }
 
-    #mapTong.toggling {
-        transition: width 0.3s;
+    #map {
+        height: 100%;
+        width: 100%;
+        background-color: var(--light-gray);
+    }
+
+    /* --- Side Panel (Tabs) --- */
+    #tabs {
+        width: 25%;
+        max-width: 350px;
+        min-width: 300px;
+        background: var(--background-color);
+        border-right: 1px solid var(--border-color);
+        transition: transform var(--transition-speed) ease-in-out, min-width var(--transition-speed) ease-in-out;
+        display: flex;
+        flex-direction: column;
+        transform: translateX(0);
+        box-shadow: 2px 0 10px var(--shadow-color);
+    }
+
+    #tabs.hidden {
+        min-width: 0;
+        width: 0;
+        transform: translateX(-100%);
+        border-right: none;
+    }
+    
+    .tabs-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px 15px;
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .tabs-header a {
+        flex-grow: 1; /* Cho phép vùng chứa logo mở rộng */
+        margin-right: 15px; /* Tạo khoảng cách với nút đóng */
+    }
+
+    .tabs-header img {
+        width: 100%; /* Logo lấp đầy vùng chứa */
+        height: auto;
+        display: block; /* Loại bỏ khoảng trống dưới ảnh */
+    }
+
+    .tab-buttons {
+        display: flex;
+        border-bottom: 1px solid var(--border-color);
     }
 
     .tab-button {
-        padding: 15px;
+        flex: 1;
+        padding: 12px;
+        text-align: center;
+        cursor: pointer;
+        background: var(--background-color);
+        border: none;
+        font-weight: 500;
+        color: var(--text-light-color);
+        border-bottom: 3px solid transparent;
+        transition: color 0.2s, border-color 0.2s;
     }
 
-    #back-to-map-btn {
+    .tab-button:hover {
+        color: var(--primary-color);
+    }
+
+    .tab-button.active {
+        color: var(--text-color);
+        border-bottom: 3px solid var(--primary-color);
+    }
+
+    .tab-content {
+        display: none;
+        padding: 15px;
+        overflow-y: auto;
+        flex-grow: 1; /* Cho phép nội dung co giãn */
+    }
+
+    .tab-content.active {
         display: block;
     }
 
-    #layer-content, #info-content {
-        max-height: 70vh;
-        overflow-y: scroll;
-    }
-
-    #back-to-map-mobile-btn{
-        display:block;
-        margin-top: 10px;
-        background-color: #007bff;
-        color: white;
-        border: none;
-        border-radius: 5px;
+    #layer-control .layer-item {
+        display: flex;
+        align-items: center;
+        margin: 12px 0;
         cursor: pointer;
-        height: 30px;
+    }
+    #layer-control .layer-item input {
+        margin-right: 10px;
+        width: 16px;
+        height: 16px;
+    }
+    
+    #feature-details {
+        word-wrap: break-word;
     }
 
-    .leaflet-bottom.leaflet-right {
-        margin-bottom: 80px;
-    }
-
-    .leaflet-bottom.leaflet-left{
-        margin-bottom: 100px;
-    }
-}
-
-/* Toggle button styling */
-#toggle-tab-btn {
-    position: absolute;
-    top: 10px;
-    z-index: 1000;
-    background: #fff;
-    border: 1px solid #ccc;
-    padding: 5px 10px;
-    cursor: pointer;
-}
-
-div#tabs {
-    display: flex;
-    flex-direction: column;
-}
-
-.popup-content {
-    font-size: 16px;
-    max-width: 100%;
-    overflow-x: auto;
-}
-
-.popup-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.popup-table th {
-    background-color: #f2f2f2;
-    padding: 8px;
-    text-align: left;
-}
-
-.popup-table td {
-    padding: 8px;
-    border-bottom: 1px solid #ddd;
-}
-
-.popup-table tr:nth-child(even) {
-    background-color: #f2f2f2;
-}
-
-.popup-table th:hover {
-    background-color: #ddd;
-}
-
-@media screen and (max-width: 600px) {
-    .popup-content {
+    /* --- Popup Table --- */
+    .popup-content table {
         width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+    .popup-content th, .popup-content td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid var(--border-color);
+    }
+    .popup-content th {
+        font-weight: 500;
+        width: 40%;
+        color: var(--text-light-color);
+    }
+    .popup-content h4 {
+        margin-top: 0;
+        color: var(--primary-color);
     }
 
-    .popup-table {
-        overflow-x: auto;
+    /* --- Legend --- */
+    .legend {
+        background-color: var(--background-color);
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px var(--shadow-color);
+        display: none; /* Ẩn mặc định */
+        max-height: 40vh;
+        overflow-y: auto;
     }
-}
+    .legend-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+    .legend img {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px;
+    }
 
-.legend {
-    background-color: white;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    display: none;
-}
+    /* --- Nút đóng trên mobile --- */
+    #back-to-map-mobile-btn {
+        display: none; /* Ẩn mặc định trên desktop */
+    }
 
-.legend img {
-    width: 20px;
-    height: auto;
-    margin-right: 5px;
-}
+    /* --- Responsive Design --- */
+    @media screen and (max-width: 768px) {
+        #mapInfo {
+            flex-direction: column;
+        }
 
-img.leaflet-marker-icon.leaflet-zoom-animated.leaflet-interactive {
-    z-index: 800 !important;
-}
+        #tabs {
+            width: 100%;
+            max-width: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 2000;
+            transform: translateX(-100%);
+            border-right: none;
+        }
+        
+        #tabs.active {
+            transform: translateX(0);
+        }
+
+        #mapTong {
+            width: 100% !important;
+        }
+        
+        #back-to-map-mobile-btn {
+            display: flex; /* Hiện nút trên mobile */
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        /* Đẩy control lên để không bị che */
+        .leaflet-bottom.leaflet-right, .leaflet-bottom.leaflet-left {
+            margin-bottom: 40px;
+        }
+    }
+
+    /* --- Leaflet Control Customization --- */
+    #toggle-tab-btn {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        z-index: 1000;
+        background: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px var(--shadow-color);
+    }
+    
+    .leaflet-bar {
+        border-radius: 8px !important;
+        box-shadow: 0 2px 5px var(--shadow-color) !important;
+    }
+    .leaflet-bar a, .leaflet-bar button {
+        border-radius: 8px !important;
+    }
 </style>
 
-<!-- Tải plugin Leaflet-LocateControl -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.css" />
-<script src="https://unpkg.com/leaflet.locatecontrol@0.79.0/dist/L.Control.Locate.min.js"></script>
-
 <div id="mapInfo">
-    <div id="tabs">
+    <!-- Bảng điều khiển bên cạnh -->
+    <div id="tabs" class="hidden">
         <div class="tabs-header">
             <a href="<?= Yii::$app->homeUrl ?>" target="_blank">
-                <img src="https://gis.nongdanviet.net/resources/images/logo_map.jpg" alt="Logo" style="width: 200px; height: auto; float: left; margin-right: 10px;">
+                <img src="https://gis.nongdanviet.net/resources/images/logo_map.jpg" alt="Logo">
             </a>
-            <button id="back-to-map-mobile-btn" onclick="toggleTabVisibility()">X</button>
+            <!-- Nút này giờ sẽ được CSS điều khiển hiển thị -->
+            <button id="back-to-map-mobile-btn"></button>
         </div>
         
         <div class="tab-buttons">
-            <button class="tab-button active" onclick="openTab('layer')">Lớp dữ liệu</button>
-            <button class="tab-button" onclick="openTab('info')">Thông tin chi tiết</button>
+            <button class="tab-button active" data-tab="layer">Lớp dữ liệu</button>
+            <button class="tab-button" data-tab="info">Thông tin</button>
         </div>
+
         <div id="layer-content" class="tab-content active">
             <h5>Hiển thị lớp dữ liệu</h5>
             <div id="layer-control">
-                <label><input type="checkbox" checked onchange="toggleLayer('wmsPhuongxaLayer')"> Phường xã</label><br>
-                <label><input type="checkbox" checked onchange="toggleLayer('wmsVungbien')"> Vùng biển</label><br>
-                <label><input type="checkbox" checked onchange="toggleLayer('wmsTrusotinhLayer')"> Trụ sở tỉnh</label><br>
-                <label><input type="checkbox" checked onchange="toggleLayer('wmsTrusophuongxaLayer')"> Trụ sở phường xã</label><br>
-                <label><input type="checkbox" checked onchange="toggleLayer('wmsDebienLayer')"> Đê biển</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsTongiaoLayer')"> Tôn giáo</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsToanhaLayer')"> Tòa nhà</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsThuyheLayer')"> Thủy hệ</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsSanbayLayer')"> Sân bay</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsRungLayer')"> Rừng</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsPolvhxhLayer')"> Vùng kinh tế văn hóa xã hội</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsPoivhxhLayer')"> Điểm kinh tế văn hóa xã hội</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsDentinhieuLayer')"> Đèn tín hiệu</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsGiaothongLayer')"> Giao thông</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsBenxeLayer')"> Bến xe</label><br>
-                <label><input type="checkbox" onchange="toggleLayer('wmsDaoLayer')"> Đảo</label><br>
-                
-                <label><input type="checkbox" checked onchange="toggleLayer('highlightLayer')"> Highlight</label><br>
-                <button id="back-to-map-btn" onclick="toggleTabVisibility()">Quay lại map</button>
+                <!-- Các checkbox sẽ được tạo tự động bằng JavaScript -->
             </div>
         </div>
+
         <div id="info-content" class="tab-content">
             <h5>Thông tin chi tiết</h5>
-            <div id="feature-info" style="height: calc(100vh - 60px); overflow-y: auto;">
-                <div id="feature-details">Chọn một đối tượng trên bản đồ để xem thông tin</div>
-                <button id="back-to-map-btn" onclick="toggleTabVisibility()">Quay lại map</button>
+            <div id="feature-details">
+                <p>Nhấn vào một đối tượng trên bản đồ để xem thông tin.</p>
             </div>
         </div>
     </div>
 
+    <!-- Bản đồ -->
     <div id="mapTong">
-        <div id="map" style="height: 100vh;"></div>
+        <div id="map"></div>
+        <button id="toggle-tab-btn"></button>
     </div>
 </div>
 
 <script>
-var center = [9.15848, 105.21332];
-
-// Create the map
-var map = L.map('map', {
-    defaultExtentControl: true
-}).setView(center, 11);
-
-// Tạo pane cho highlightLayer với zIndex cao hơn
-map.createPane('highlightPane');
-map.getPane('highlightPane').style.zIndex = 700; // Tăng lên 700 để ưu tiên hơn
-
-var baseMaps = {
-    "Bản đồ Google": L.tileLayer('http://{s}.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', {
-        maxZoom: 22,
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-    }).addTo(map),
-
-    "Ảnh vệ tinh": L.tileLayer('http://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
-        maxZoom: 22,
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
-    })
-};
-
-// Thêm lớp L.Control.Locate
-var locateControl = new L.Control.Locate({
-    position: 'bottomleft',
-    strings: {
-        title: "Hiện vị trí",
-        popup: "Bạn đang ở đây"
-    },
-    drawCircle: true,
-    follow: true,
-});
-map.addControl(locateControl);
-
-var measureControl = new L.Control.Measure({
-    position: 'bottomright',
-    primaryLengthUnit: 'meters',
-    secondaryLengthUnit: undefined,
-    primaryAreaUnit: 'sqmeters',
-    decPoint: ',',
-    thousandsSep: '.'
-});
-measureControl.addTo(map);
-
-L.control.scale({
-    imperial: false,
-    maxWidth: 150
-}).addTo(map);
-
-// Tạo highlightLayer với pane riêng
-var highlightLayer = L.featureGroup([], { pane: 'highlightPane' }).addTo(map);
-
-var myPane = map.createPane('myPane');
-myPane.style.zIndex = 650;
-
-var wmsPhuongxaLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_px',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-}).addTo(map);
-
-var wmsVungbien = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_vungbien',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-}).addTo(map);
-
-var wmsTrusotinhLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_truso_tinh',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-}).addTo(map);
-
-var wmsTrusophuongxaLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_truso_px',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-}).addTo(map);
-
-var wmsDebienLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_debien',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-}).addTo(map);
-
-var wmsTongiaoLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_tongiao',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-});
-
-var wmsToanhaLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_toanha',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-});
-
-var wmsThuyheLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_thuyhe',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-});
-
-var wmsSanbayLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_sanbay',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-});
-
-var wmsRungLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_rung',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-});
-
-var wmsPolvhxhLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_poi_polygon',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-});
-
-var wmsPoivhxhLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_poi_point',
-    format: 'image/png',
-    transparent: true,
-    maxZoom: 22,
-    pane: 'myPane'
-});
-
-var wmsDentinhieuLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_dentinhieu',
-    format: 'image/png',
-    transparent: true,
-    pane: 'myPane'
-});
-
-var wmsGiaothongLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_gt',
-    format: 'image/png',
-    transparent: true,
-    pane: 'myPane'
-});
-
-var wmsBenxeLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_benxe',
-    format: 'image/png',
-    transparent: true,
-    pane: 'myPane'
-});
-
-var wmsDaoLayer = L.tileLayer.wms('https://nongdanviet.net/geoserver/gis_camau/wms', {
-    layers: 'gis_camau:camau_dao',
-    format: 'image/png',
-    transparent: true,
-    pane: 'myPane'
-});
-
-function toggleLayer(layerName) {
-    var layerMap = {
-        "wmsPhuongxaLayer": wmsPhuongxaLayer,
-        "wmsVungbien": wmsVungbien,
-        "wmsTrusotinhLayer": wmsTrusotinhLayer,
-        "wmsTrusophuongxaLayer": wmsTrusophuongxaLayer,
-        "wmsDebienLayer": wmsDebienLayer,
-        "wmsTongiaoLayer": wmsTongiaoLayer,
-        "wmsToanhaLayer": wmsToanhaLayer,
-        "wmsThuyheLayer": wmsThuyheLayer,
-        "wmsSanbayLayer": wmsSanbayLayer,
-        "wmsRungLayer": wmsRungLayer,
-        "wmsPolvhxhLayer": wmsPolvhxhLayer,
-        "wmsPoivhxhLayer": wmsPoivhxhLayer,
-        "wmsDentinhieuLayer": wmsDentinhieuLayer,
-        "wmsGiaothongLayer": wmsGiaothongLayer,
-        "wmsBenxeLayer": wmsBenxeLayer,
-        "wmsDaoLayer": wmsDaoLayer,
-        "highlightLayer": highlightLayer
+document.addEventListener('DOMContentLoaded', function () {
+    // --- ICONS ---
+    const ICONS = {
+        menu: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>',
+        close: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>'
     };
 
-    var checkbox = event.target;
-    if (checkbox.checked) {
-        layerMap[layerName].addTo(map);
-    } else {
-        map.removeLayer(layerMap[layerName]);
-    }
-}
-
-function getFeatureInfoUrl(layer, latlng, url) {
-    let size = map.getSize();
-    let bbox = map.getBounds().toBBoxString();
-    let point = map.latLngToContainerPoint(latlng, map.getZoom());
-
-    const FeatureInfoUrl = url +
-        `?SERVICE=WMS` +
-        `&VERSION=1.1.1` +
-        `&REQUEST=GetFeatureInfo` +
-        `&LAYERS=${layer}` +
-        `&QUERY_LAYERS=${layer}` +
-        `&STYLES=` +
-        `&BBOX=${bbox}` +
-        `&FEATURE_COUNT=1` +
-        `&HEIGHT=${size.y}` +
-        `&WIDTH=${size.x}` +
-        `&FORMAT=image/png` +
-        `&INFO_FORMAT=application/json` +
-        `&SRS=EPSG:4326` +
-        `&X=${Math.floor(point.x)}` +
-        `&Y=${Math.floor(point.y)}`;
-
-    return FeatureInfoUrl;
-}
-
-map.on('click', function(e) {
-    const isMobile = window.innerWidth <= 768;
-    let tabShown = false;
-
-    // Danh sách các lớp WMS với zIndex
-    const wmsLayers = [
-        { name: 'camau_px', layer: wmsPhuongxaLayer, zIndex: 450 },
-        { name: 'camau_vungbien', layer: wmsVungbien, zIndex: 450 },
-        { name: 'camau_truso_tinh', layer: wmsTrusotinhLayer, zIndex: 650 },
-        { name: 'camau_truso_px', layer: wmsTrusophuongxaLayer, zIndex: 650 },
-        { name: 'camau_debien', layer: wmsDebienLayer, zIndex: 450 },
-        { name: 'camau_tongiao', layer: wmsTongiaoLayer, zIndex: 650 },
-        { name: 'camau_toanha', layer: wmsToanhaLayer, zIndex: 550 },
-        { name: 'camau_thuyhe', layer: wmsThuyheLayer, zIndex: 550 },
-        { name: 'camau_sanbay', layer: wmsSanbayLayer, zIndex: 550 },
-        { name: 'camau_rung', layer: wmsRungLayer, zIndex: 550 },
-        { name: 'camau_poi_polygon', layer: wmsPolvhxhLayer, zIndex: 650 },
-        { name: 'camau_poi_point', layer: wmsPoivhxhLayer, zIndex: 650 },
-        { name: 'camau_dentinhieu', layer: wmsDentinhieuLayer, zIndex: 650 },
-        { name: 'camau_gt', layer: wmsGiaothongLayer, zIndex: 650 },
-        { name: 'camau_benxe', layer: wmsBenxeLayer, zIndex: 650 },
-        { name: 'camau_dao', layer: wmsDaoLayer, zIndex: 650 }
+    // --- CONFIGURATION ---
+    const WMS_URL = 'https://nongdanviet.net/geoserver/gis_camau/wms';
+    const MAP_CENTER = [9.15848, 105.21332];
+    const MAP_ZOOM = 11;
+    const layerConfig = [
+        { id: 'wmsPhuongxaLayer', wmsName: 'gis_camau:camau_px', displayName: 'Phường xã', defaultVisible: true, zIndex: 450, popupFields: { 'ten_dvhc': 'Tên ĐVHC' } },
+        { id: 'wmsVungbien', wmsName: 'gis_camau:camau_vungbien', displayName: 'Vùng biển', defaultVisible: true, zIndex: 450, popupFields: { 'Shape_Length': 'Chu vi', 'Shape_Area': 'Diện tích' } },
+        { id: 'wmsTrusotinhLayer', wmsName: 'gis_camau:camau_truso_tinh', displayName: 'Trụ sở tỉnh', defaultVisible: true, zIndex: 651, popupFields: { 'ten': 'Tên' } },
+        { id: 'wmsTrusophuongxaLayer', wmsName: 'gis_camau:camau_truso_px', displayName: 'Trụ sở phường xã', defaultVisible: true, zIndex: 651, popupFields: { 'ten': 'Tên' } },
+        { id: 'wmsDebienLayer', wmsName: 'gis_camau:camau_debien', displayName: 'Đê biển', defaultVisible: true, zIndex: 500, popupFields: { 'ten': 'Tên' } },
+        { id: 'wmsTongiaoLayer', wmsName: 'gis_camau:camau_tongiao', displayName: 'Tôn giáo', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên' } },
+        { id: 'wmsToanhaLayer', wmsName: 'gis_camau:camau_toanha', displayName: 'Tòa nhà', defaultVisible: false, zIndex: 550, popupFields: { 'area_in_me': 'Diện tích (m²)', 'confidence': 'Độ tin cậy' } },
+        { id: 'wmsThuyheLayer', wmsName: 'gis_camau:camau_thuyhe', displayName: 'Thủy hệ', defaultVisible: false, zIndex: 550, popupFields: { 'ten_kenh_rach': 'Tên', 'chieu_dai': 'Dài', 'chieu_rong': 'Rộng' } },
+        { id: 'wmsSanbayLayer', wmsName: 'gis_camau:camau_sanbay', displayName: 'Sân bay', defaultVisible: false, zIndex: 550, popupFields: { 'fclass': 'Loại', 'name': 'Tên' } },
+        { id: 'wmsRungLayer', wmsName: 'gis_camau:camau_rung', displayName: 'Rừng', defaultVisible: false, zIndex: 550, popupFields: { 's': 'Diện tích' } },
+        { id: 'wmsPolvhxhLayer', wmsName: 'gis_camau:camau_poi_polygon', displayName: 'Vùng KTVHXH', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên' } },
+        { id: 'wmsPoivhxhLayer', wmsName: 'gis_camau:camau_poi_point', displayName: 'Điểm KTVHXH', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên' } },
+        { id: 'wmsDentinhieuLayer', wmsName: 'gis_camau:camau_dentinhieu', displayName: 'Đèn tín hiệu', defaultVisible: false, zIndex: 652, popupFields: { 'fclass': 'Loại', 'name': 'Tên' } },
+        { id: 'wmsGiaothongLayer', wmsName: 'gis_camau:camau_gt', displayName: 'Giao thông', defaultVisible: false, zIndex: 600, popupFields: { 'ten_duong': 'Tên đường' } },
+        { id: 'wmsBenxeLayer', wmsName: 'gis_camau:camau_benxe', displayName: 'Bến xe', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên' } },
+        { id: 'wmsDaoLayer', wmsName: 'gis_camau:camau_dao', displayName: 'Đảo', defaultVisible: false, zIndex: 400, popupFields: { 'ten_vung': 'Tên', 'dien_tich': 'Diện tích', 'tinh_thanh': 'Tỉnh thành' } },
     ];
 
-    // Lọc các lớp WMS đang hiển thị và sắp xếp theo zIndex
-    const visibleLayers = wmsLayers
-        .filter(item => map.hasLayer(item.layer))
-        .sort((a, b) => (b.zIndex || 0) - (a.zIndex || 0));
+    // --- MAP INITIALIZATION ---
+    const map = L.map('map', { zoomControl: false }).setView(MAP_CENTER, MAP_ZOOM);
+    const leafletLayers = {};
+    L.control.zoom({ position: 'topright' }).addTo(map);
 
-    if (visibleLayers.length === 0) {
-        document.getElementById('feature-details').innerHTML = 'Chọn một đối tượng trên bản đồ để xem thông tin';
-        highlightLayer.clearLayers();
-        return;
+    const baseMaps = {
+        "Bản đồ Google": L.tileLayer('https://{s}.google.com/vt/lyrs=r&x={x}&y={y}&z={z}', { maxZoom: 22, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] }).addTo(map),
+        "Ảnh vệ tinh": L.tileLayer('https://{s}.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', { maxZoom: 22, subdomains: ['mt0', 'mt1', 'mt2', 'mt3'] })
+    };
+
+    map.createPane('highlightPane').style.zIndex = 700;
+    const highlightLayer = L.geoJSON(null, {
+        pane: 'highlightPane',
+        style: { color: '#ff0000', weight: 5, opacity: 1, fillOpacity: 0.3, dashArray: '5, 5' }
+    }).addTo(map);
+
+    // --- DYNAMIC UI GENERATION ---
+    function initializeDynamicUI() {
+        const layerControlContainer = document.getElementById('layer-control');
+        let legendHtml = '<h4>Chú giải</h4>';
+
+        layerConfig.forEach(config => {
+            const label = document.createElement('label');
+            label.className = 'layer-item';
+            label.innerHTML = `<input type="checkbox" data-layer-id="${config.id}" ${config.defaultVisible ? 'checked' : ''}> <span>${config.displayName}</span>`;
+            layerControlContainer.appendChild(label);
+            
+            const legendUrl = `${WMS_URL}?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=${config.wmsName}`;
+            legendHtml += `<div class="legend-item"><img src="${legendUrl}" alt="${config.displayName}"><span>${config.displayName}</span></div>`;
+        });
+        
+        legendControl.getContainer().innerHTML = legendHtml;
+        document.getElementById('toggle-tab-btn').innerHTML = ICONS.menu;
+        document.getElementById('back-to-map-mobile-btn').innerHTML = ICONS.close;
     }
 
-    // Hàm xử lý GetFeatureInfo tuần tự để ưu tiên lớp trên cùng
-    async function fetchFeatureInfoSequentially(layers) {
-        for (const item of layers) {
-            const url = getFeatureInfoUrl(item.name, e.latlng, item.layer._url);
+    // --- LAYER MANAGEMENT ---
+    function createWmsLayer(config) {
+        map.createPane(config.id).style.zIndex = config.zIndex;
+        return L.tileLayer.wms(WMS_URL, {
+            layers: config.wmsName,
+            format: 'image/png',
+            transparent: true,
+            maxZoom: 22,
+            pane: config.id
+        });
+    }
+    
+    layerConfig.forEach(config => {
+        leafletLayers[config.id] = createWmsLayer(config);
+        if (config.defaultVisible) {
+            leafletLayers[config.id].addTo(map);
+        }
+    });
+
+    // --- MAP CONTROLS ---
+    L.control.layers(baseMaps, null, { position: 'topright' }).addTo(map);
+    L.control.scale({ imperial: false }).addTo(map);
+    new L.Control.Measure({ position: 'topright', primaryLengthUnit: 'meters', primaryAreaUnit: 'sqmeters' }).addTo(map);
+    new L.Control.Locate({ position: 'topright', strings: { title: "Hiện vị trí" } }).addTo(map);
+
+    const legendControl = L.control({ position: 'bottomright' });
+    legendControl.onAdd = () => L.DomUtil.create('div', 'legend');
+    legendControl.addTo(map);
+    
+    const legendToggle = L.control({ position: 'bottomright' });
+    legendToggle.onAdd = () => {
+        const button = L.DomUtil.create('button', 'leaflet-bar');
+        button.innerHTML = 'Chú giải';
+        button.style.cursor = 'pointer';
+        button.onclick = () => {
+            const legendDiv = legendControl.getContainer();
+            legendDiv.style.display = (legendDiv.style.display === 'none' || legendDiv.style.display === '') ? 'block' : 'none';
+        };
+        return button;
+    };
+    legendToggle.addTo(map);
+
+    // --- EVENT HANDLERS ---
+    map.on('click', async function(e) {
+        const latlng = e.latlng;
+        const point = map.latLngToContainerPoint(latlng, map.getZoom());
+        const size = map.getSize();
+        const bbox = map.getBounds().toBBoxString();
+
+        const visibleLayers = layerConfig
+            .filter(cfg => map.hasLayer(leafletLayers[cfg.id]))
+            .sort((a, b) => b.zIndex - a.zIndex);
+
+        if (visibleLayers.length === 0) return;
+
+        document.getElementById('feature-details').innerHTML = '<p>Đang tải...</p>';
+        highlightLayer.clearLayers();
+
+        for (const config of visibleLayers) {
+            const url = `${WMS_URL}?SERVICE=WMS&VERSION=1.1.1&REQUEST=GetFeatureInfo&LAYERS=${config.wmsName}&QUERY_LAYERS=${config.wmsName}&BBOX=${bbox}&FEATURE_COUNT=1&HEIGHT=${size.y}&WIDTH=${size.x}&INFO_FORMAT=application/json&SRS=EPSG:4326&X=${Math.floor(point.x)}&Y=${Math.floor(point.y)}`;
+            
             try {
-                const res = await fetch(url);
-                const data = await res.json();
+                const response = await fetch(url);
+                const data = await response.json();
+
                 if (data.features && data.features.length > 0) {
-                    return { layerName: item.name, data };
+                    displayFeatureInfo(data.features[0], config);
+                    if (window.innerWidth <= 768) {
+                        openTab('info');
+                        toggleTabPanel(true);
+                    }
+                    return;
                 }
             } catch (error) {
-                console.error(`Lỗi khi lấy thông tin từ lớp ${item.name}:`, error);
+                console.error(`Lỗi khi lấy thông tin từ lớp ${config.displayName}:`, error);
             }
         }
-        return null; // Không tìm thấy dữ liệu
-    }
-
-    fetchFeatureInfoSequentially(visibleLayers).then(result => {
-        if (!result) {
-            document.getElementById('feature-details').innerHTML = 'Không tìm thấy thông tin tại vị trí này';
-            highlightLayer.clearLayers();
-            return;
-        }
-
-        const { layerName, data } = result;
-        const properties = data.features[0].properties;
-        let popupContent = "<div class='popup-content'><table>";
-
-        // Xác định nội dung popup dựa trên lớp
-        switch (layerName) {
-            case 'camau_vungbien':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Vùng biển</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>Shape_Length:</strong></td><td>${properties.Shape_Length || 'Không có'}</td></tr>
-                    <tr><td><strong>Shape_Area:</strong></td><td>${properties.Shape_Area || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_truso_tinh':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Trụ sở tỉnh</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>ten:</strong></td><td>${properties.ten || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_truso_px':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Trụ sở phường xã</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>ten:</strong></td><td>${properties.ten || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_debien':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Đê biển</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>ten:</strong></td><td>${properties.ten || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_tongiao':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Tôn giáp</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
-                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_sanbay':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Sân bay</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
-                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_poi_polygon':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Vùng KTVHXH</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
-                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_poi_point':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Điểm KTVHXH</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
-                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_dentinhieu':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Đèn tín hiệu</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
-                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_benxe':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Bến xe</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
-                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_toanha':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Tòa nhà</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>area_in_me:</strong></td><td>${properties.area_in_me || 'Không có'}</td></tr>
-                    <tr><td><strong>confidence:</strong></td><td>${properties.confidence || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_thuyhe':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Thủy hệ</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>ten_kenh_rach:</strong></td><td>${properties.ten_kenh_rach || 'Không có'}</td></tr>
-                    <tr><td><strong>chieu_dai:</strong></td><td>${properties.chieu_dai || 'Không có'}</td></tr>
-                    <tr><td><strong>chieu_rong:</strong></td><td>${properties.chieu_rong || 'Không có'}</td></tr>
-                    <tr><td><strong>ti_le:</strong></td><td>${properties.ti_le || 'Không có'}</td></tr>
-                    <tr><td><strong>Shape_Length:</strong></td><td>${properties.Shape_Length || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_gt':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Giao thông</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>ten_duong:</strong></td><td>${properties.ten_duong || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_rung':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Rừng</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>dien_tich:</strong></td><td>${properties.s || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_px':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Phường xã</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>ten_dvhc:</strong></td><td>${properties.ten_dvhc || 'Không có'}</td></tr>`;
-                break;
-            case 'camau_dao':
-                popupContent += `
-                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Đảo</td></tr>
-                    <tr><td><hr></</tr>
-                    <tr><td><strong>ten_vung:</strong></td><td>${properties.ten_vung || 'Không có'}</td></tr>
-                    <tr><td><strong>dien_tich:</strong></td><td>${properties.dien_tich || 'Không có'}</td></tr>
-                    <tr><td><strong>tinh_thanh:</strong></td><td>${properties.tinh_thanh || 'Không có'}</td></tr>`;
-                break;
-            default:
-                popupContent += `<tr><td colspan='2'>Không có thông tin chi tiết</td></tr>`;
-        }
-
-        popupContent += "</table></div>";
-        document.getElementById('feature-details').innerHTML = popupContent;
-
-        // Đánh dấu đối tượng được click với pane riêng và style nổi bật
-        highlightLayer.clearLayers();
-        const highlightedFeature = L.geoJSON(data.features[0], {
-            pane: 'highlightPane', // Sử dụng pane có zIndex cao
-            style: {
-                color: '#ff0000',
-                weight: 5, // Tăng độ dày viền để nổi bật
-                opacity: 1,
-                fillOpacity: 0.3, // Tăng độ mờ fill để dễ thấy hơn
-                dashArray: '5, 5' // Thêm hiệu ứng gạch ngang
-            }
-        });
-        highlightLayer.addLayer(highlightedFeature);
-
-        // Hiển thị tab thông tin trên di động
-        if (isMobile) {
-            openTab('info');
-            const tabs = document.getElementById('tabs');
-            if (!tabs.classList.contains('active')) {
-                toggleTabVisibility();
-                tabShown = true;
-            }
-        }
-    }).catch(error => {
-        console.error('Lỗi khi lấy thông tin đối tượng:', error);
-        document.getElementById('feature-details').innerHTML = 'Lỗi khi tải thông tin';
-        highlightLayer.clearLayers();
+        
+        document.getElementById('feature-details').innerHTML = '<p>Không tìm thấy thông tin tại vị trí này.</p>';
     });
-});
+    
+    function displayFeatureInfo(feature, config) {
+        const properties = feature.properties;
+        let content = `<div class='popup-content'><h4>${config.displayName}</h4><table>`;
 
-function openTab(tabName) {
-    var tabs = document.getElementsByClassName('tab-content');
-    for (var i = 0; i < tabs.length; i++) {
-        tabs[i].classList.remove('active');
+        for (const key in config.popupFields) {
+            if (properties.hasOwnProperty(key)) {
+                content += `<tr><th>${config.popupFields[key]}</th><td>${properties[key] || 'Không có'}</td></tr>`;
+            }
+        }
+        content += "</table></div>";
+        document.getElementById('feature-details').innerHTML = content;
+
+        highlightLayer.clearLayers();
+        highlightLayer.addData(feature);
     }
-    document.getElementById(tabName + '-content').classList.add('active');
+    
+    document.getElementById('layer-control').addEventListener('change', function(e) {
+        if (e.target.matches('input[type="checkbox"]')) {
+            const layerId = e.target.dataset.layerId;
+            const layer = leafletLayers[layerId];
+            if (e.target.checked) {
+                map.addLayer(layer);
+            } else {
+                map.removeLayer(layer);
+            }
+        }
+    });
 
-    var buttons = document.getElementsByClassName('tab-button');
-    for (var i = 0; i < buttons.length; i++) {
-        buttons[i].classList.remove('active');
+    // --- UI FUNCTIONS ---
+    document.querySelector('.tab-buttons').addEventListener('click', function(e) {
+        if (e.target.classList.contains('tab-button')) {
+            openTab(e.target.dataset.tab);
+        }
+    });
+
+    function openTab(tabName) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(tabName + '-content').classList.add('active');
+        
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        document.querySelector(`.tab-button[data-tab='${tabName}']`).classList.add('active');
     }
-    document.querySelector(`[onclick="openTab('${tabName}')"]`).classList.add('active');
-}
 
-function toggleTabVisibility() {
-    var tabs = document.getElementById('tabs');
-    var mapTong = document.getElementById('mapTong');
-    var isActive = tabs.classList.contains('active');
+    window.toggleTabPanel = function(forceShow) {
+        const tabs = document.getElementById('tabs');
+        const isMobile = window.innerWidth <= 768;
+        let show;
 
-    // Prevent multiple toggles if already in progress
-    if (tabs.classList.contains('toggling')) return;
+        if (typeof forceShow === 'boolean') {
+            show = forceShow;
+        } else {
+            show = isMobile ? !tabs.classList.contains('active') : tabs.classList.contains('hidden');
+        }
 
-    tabs.classList.add('toggling');
-    if (isActive) {
-        tabs.classList.remove('active');
-        mapTong.style.width = '100%';
+        if (isMobile) {
+            tabs.classList.toggle('active', show);
+        } else {
+            tabs.classList.toggle('hidden', !show);
+        }
+        
+        setTimeout(() => map.invalidateSize(), 300);
+    }
+
+    document.getElementById('toggle-tab-btn').addEventListener('click', () => toggleTabPanel());
+    document.getElementById('back-to-map-mobile-btn').addEventListener('click', () => toggleTabPanel(false));
+    
+    initializeDynamicUI();
+
+    // Set initial state based on screen size
+    if (window.innerWidth > 768) {
+        toggleTabPanel(true); // Show panel on desktop by default
     } else {
-        tabs.classList.add('active');
-        mapTong.style.width = '80%';
-    }
-
-    // Ensure the transition completes before removing the toggling class
-    setTimeout(() => {
-        tabs.classList.remove('toggling');
-    }, 300); // Match the CSS transition duration
-}
-
-// add log out
-var logoutBtn = L.control({ position: 'topright' });
-logoutBtn.onAdd = function(map) {
-    var div = L.DomUtil.create('div');
-    div.innerHTML = '<a style="padding: 3px 5px; background-color:#fff" href="<?= Yii::$app->urlManager->createUrl(["user/auth/logout"]) ?>">Đăng xuất</a>';
-    return div;
-};
-logoutBtn.addTo(map);
-
-// Add toggle button for tabs
-var toggleTabBtn = L.control({ position: 'topleft' });
-toggleTabBtn.onAdd = function(map) {
-    var div = L.DomUtil.create('div', 'leaflet-bar');
-    div.innerHTML = '<button id="toggle-tab-btn" style="background: #fff; border: 1px solid #ccc; padding: 5px 10px; cursor: pointer;">☰</button>';
-    return div;
-};
-toggleTabBtn.addTo(map);
-
-document.getElementById('toggle-tab-btn').addEventListener('click', toggleTabVisibility);
-
-// Tạo legend control
-var legendControl = L.control({
-    position: 'bottomright'
-});
-
-legendControl.onAdd = function(map) {
-    var div = L.DomUtil.create('div', 'legend');
-    div.innerHTML += '<h4>Legend</h4>';
-    // div.innerHTML +=
-    //     '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_px"> Phường xã<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_vungbien"> Vùng biển<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_truso_tinh"> Trụ sở tỉnh<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_truso_px"> Trụ sở phường xã<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_debien"> Đê biển<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_tongiao"> Tôn giáo<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_toanha"> Tòa nhà<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_thuyhe"> Thủy hệ<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_sanbay"> Sân bay<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_rung"> Rừng<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_poi_polygon"> KTVHXH<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_poi_point"> KTVHXH<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_gt"> Giao thông<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_benxe"> Bến xe<br>';
-    div.innerHTML +=
-        '<img src="https://nongdanviet.net/geoserver/gis_camau/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=gis_camau:camau_dao"> Đảo<br>';
-    return div;
-};
-
-legendControl.addTo(map);
-
-var legendToggleControl = L.control({
-    position: 'bottomright'
-});
-
-legendToggleControl.onAdd = function(map) {
-    var div = L.DomUtil.create('div', 'legend-toggle');
-    div.innerHTML = '<button id="legend-toggle-btn"> Chú thích</button>';
-    return div;
-};
-
-legendToggleControl.addTo(map);
-
-document.getElementById('legend-toggle-btn').addEventListener('click', function() {
-    var legendDiv = document.querySelector('.legend');
-    if (legendDiv.style.display === 'none' || legendDiv.style.display === '') {
-        legendDiv.style.display = 'block';
-    } else {
-        legendDiv.style.display = 'none';
+        toggleTabPanel(false); // Hide panel on mobile by default
     }
 });
-
-var layerControl = L.control.layers(baseMaps).addTo(map);
 </script>
