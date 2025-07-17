@@ -3,7 +3,6 @@
 use yii\helpers\Url;
 
 // Đăng ký các asset cần thiết.
-// Giả định rằng các asset này đã được cấu hình đúng trong Yii2 AssetBundle của bạn.
 app\widgets\maps\LeafletMapAsset::register($this);
 app\widgets\maps\plugins\leafletprint\PrintMapAsset::register($this);
 app\widgets\maps\plugins\markercluster\MarkerClusterAsset::register($this);
@@ -14,13 +13,18 @@ app\widgets\maps\plugins\leafletlocate\LeafletLocateAsset::register($this);
 $this->title = 'Bản đồ GIS';
 $this->params['hideHero'] = true;
 ?>
+<!-- 
+    QUAN TRỌNG: Thẻ Meta Viewport để đảm bảo hiển thị đúng trên thiết bị di động.
+    Nếu bạn có một file layout chính (vd: main.php), hãy đảm bảo thẻ này có trong <head>.
+-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
 <!-- Import Google Font -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
 
 <style>
-    /* Sử dụng biến CSS để dễ dàng thay đổi theme */
     :root {
         --primary-color: #007bff;
         --light-gray: #f1f5f9;
@@ -31,6 +35,8 @@ $this->params['hideHero'] = true;
         --shadow-color: rgba(0, 0, 0, 0.1);
         --transition-speed: 0.3s;
         --font-family: 'Inter', sans-serif;
+        /* Biến chiều cao động, sẽ được set bằng JS */
+        --app-height: 100vh;
     }
 
     body, html {
@@ -38,14 +44,15 @@ $this->params['hideHero'] = true;
         padding: 0;
         height: 100%;
         width: 100%;
-        overflow: hidden; /* Ngăn cuộn trang */
+        overflow: hidden;
         font-family: var(--font-family);
         color: var(--text-color);
     }
 
     #mapInfo {
         display: flex;
-        height: 100vh;
+        /* Sử dụng biến --app-height thay vì 100vh */
+        height: var(--app-height);
     }
 
     #mapTong {
@@ -68,7 +75,7 @@ $this->params['hideHero'] = true;
         min-width: 300px;
         background: var(--background-color);
         border-right: 1px solid var(--border-color);
-        transition: transform var(--transition-speed) ease-in-out, min-width var(--transition-speed) ease-in-out;
+        transition: transform var(--transition-speed) ease-in-out, min-width var(--transition-speed) ease-in-out, width var(--transition-speed) ease-in-out;
         display: flex;
         flex-direction: column;
         transform: translateX(0);
@@ -78,7 +85,7 @@ $this->params['hideHero'] = true;
     #tabs.hidden {
         min-width: 0;
         width: 0;
-        transform: translateX(-100%);
+        transform: translateX(0); /* Desktop uses width/min-width to hide */
         border-right: none;
     }
     
@@ -88,22 +95,24 @@ $this->params['hideHero'] = true;
         align-items: center;
         padding: 10px 15px;
         border-bottom: 1px solid var(--border-color);
+        flex-shrink: 0; /* Ngăn header bị co lại */
     }
 
     .tabs-header a {
-        flex-grow: 1; /* Cho phép vùng chứa logo mở rộng */
-        margin-right: 15px; /* Tạo khoảng cách với nút đóng */
+        flex-grow: 1;
+        margin-right: 15px;
     }
 
     .tabs-header img {
-        width: 100%; /* Logo lấp đầy vùng chứa */
+        width: 100%;
         height: auto;
-        display: block; /* Loại bỏ khoảng trống dưới ảnh */
+        display: block;
     }
 
     .tab-buttons {
         display: flex;
         border-bottom: 1px solid var(--border-color);
+        flex-shrink: 0;
     }
 
     .tab-button {
@@ -132,7 +141,9 @@ $this->params['hideHero'] = true;
         display: none;
         padding: 15px;
         overflow-y: auto;
-        flex-grow: 1; /* Cho phép nội dung co giãn */
+        flex-grow: 1;
+        /* Cải thiện trải nghiệm cuộn trên iOS */
+        -webkit-overflow-scrolling: touch;
     }
 
     .tab-content.active {
@@ -155,7 +166,6 @@ $this->params['hideHero'] = true;
         word-wrap: break-word;
     }
 
-    /* --- Popup Table --- */
     .popup-content table {
         width: 100%;
         border-collapse: collapse;
@@ -176,13 +186,12 @@ $this->params['hideHero'] = true;
         color: var(--primary-color);
     }
 
-    /* --- Legend --- */
     .legend {
         background-color: var(--background-color);
         padding: 15px;
         border-radius: 8px;
         box-shadow: 0 2px 10px var(--shadow-color);
-        display: none; /* Ẩn mặc định */
+        display: none;
         max-height: 40vh;
         overflow-y: auto;
     }
@@ -198,24 +207,18 @@ $this->params['hideHero'] = true;
         margin-right: 10px;
     }
 
-    /* --- Nút đóng trên mobile --- */
     #back-to-map-mobile-btn {
-        display: none; /* Ẩn mặc định trên desktop */
+        display: none;
     }
 
-    /* --- Responsive Design --- */
     @media screen and (max-width: 768px) {
-        #mapInfo {
-            flex-direction: column;
-        }
-
         #tabs {
             width: 100%;
             max-width: none;
             position: absolute;
             top: 0;
             left: 0;
-            height: 100vh;
+            height: var(--app-height);
             z-index: 2000;
             transform: translateX(-100%);
             border-right: none;
@@ -230,7 +233,7 @@ $this->params['hideHero'] = true;
         }
         
         #back-to-map-mobile-btn {
-            display: flex; /* Hiện nút trên mobile */
+            display: flex;
             align-items: center;
             justify-content: center;
             background: none;
@@ -240,13 +243,11 @@ $this->params['hideHero'] = true;
             padding: 5px;
         }
 
-        /* Đẩy control lên để không bị che */
         .leaflet-bottom.leaflet-right, .leaflet-bottom.leaflet-left {
             margin-bottom: 40px;
         }
     }
 
-    /* --- Leaflet Control Customization --- */
     #toggle-tab-btn {
         position: absolute;
         top: 15px;
@@ -274,13 +275,12 @@ $this->params['hideHero'] = true;
 </style>
 
 <div id="mapInfo">
-    <!-- Bảng điều khiển bên cạnh -->
-    <div id="tabs" class="hidden">
+    <!-- Loại bỏ class 'hidden' ban đầu để JS kiểm soát hoàn toàn -->
+    <div id="tabs">
         <div class="tabs-header">
             <a href="<?= Yii::$app->homeUrl ?>" target="_blank">
                 <img src="https://gis.nongdanviet.net/resources/images/logo_map.jpg" alt="Logo">
             </a>
-            <!-- Nút này giờ sẽ được CSS điều khiển hiển thị -->
             <button id="back-to-map-mobile-btn"></button>
         </div>
         
@@ -291,9 +291,7 @@ $this->params['hideHero'] = true;
 
         <div id="layer-content" class="tab-content active">
             <h5>Hiển thị lớp dữ liệu</h5>
-            <div id="layer-control">
-                <!-- Các checkbox sẽ được tạo tự động bằng JavaScript -->
-            </div>
+            <div id="layer-control"></div>
         </div>
 
         <div id="info-content" class="tab-content">
@@ -304,7 +302,6 @@ $this->params['hideHero'] = true;
         </div>
     </div>
 
-    <!-- Bản đồ -->
     <div id="mapTong">
         <div id="map"></div>
         <button id="toggle-tab-btn"></button>
@@ -313,6 +310,15 @@ $this->params['hideHero'] = true;
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // --- KHẮC PHỤC LỖI 100VH TRÊN MOBILE ---
+    const setAppHeight = () => {
+        const doc = document.documentElement;
+        doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+    };
+    window.addEventListener('resize', setAppHeight);
+    window.addEventListener('orientationchange', setAppHeight);
+    setAppHeight(); // Set initial height
+
     // --- ICONS ---
     const ICONS = {
         menu: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>',
@@ -502,6 +508,10 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelector(`.tab-button[data-tab='${tabName}']`).classList.add('active');
     }
 
+    /**
+     * [SỬA LỖI] Hàm này được viết lại để xử lý trạng thái mobile/desktop một cách rõ ràng,
+     * tránh xung đột class khi tải trang trực tiếp ở chế độ mobile.
+     */
     window.toggleTabPanel = function(forceShow) {
         const tabs = document.getElementById('tabs');
         const isMobile = window.innerWidth <= 768;
@@ -510,15 +520,21 @@ document.addEventListener('DOMContentLoaded', function () {
         if (typeof forceShow === 'boolean') {
             show = forceShow;
         } else {
+            // Xác định trạng thái hiện tại để toggle
             show = isMobile ? !tabs.classList.contains('active') : tabs.classList.contains('hidden');
         }
 
         if (isMobile) {
+            // Trên mobile, chỉ dùng class 'active'
+            tabs.classList.remove('hidden'); // Dọn dẹp class của desktop
             tabs.classList.toggle('active', show);
         } else {
+            // Trên desktop, chỉ dùng class 'hidden'
+            tabs.classList.remove('active'); // Dọn dẹp class của mobile
             tabs.classList.toggle('hidden', !show);
         }
         
+        // Cập nhật kích thước bản đồ sau khi animation hoàn tất
         setTimeout(() => map.invalidateSize(), 300);
     }
 
@@ -529,9 +545,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Set initial state based on screen size
     if (window.innerWidth > 768) {
-        toggleTabPanel(true); // Show panel on desktop by default
+        toggleTabPanel(true); // Luôn hiện panel trên desktop khi tải
     } else {
-        toggleTabPanel(false); // Hide panel on mobile by default
+        toggleTabPanel(false); // Luôn ẩn panel trên mobile khi tải
     }
 });
 </script>
