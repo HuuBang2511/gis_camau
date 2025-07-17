@@ -624,32 +624,82 @@ map.on('click', function(e) {
         switch (layerName) {
             case 'camau_vungbien':
                 popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Vùng biển</td></tr>
+                    <tr><td><hr></</tr>
                     <tr><td><strong>Shape_Length:</strong></td><td>${properties.Shape_Length || 'Không có'}</td></tr>
                     <tr><td><strong>Shape_Area:</strong></td><td>${properties.Shape_Area || 'Không có'}</td></tr>`;
                 break;
             case 'camau_truso_tinh':
+                popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Trụ sở tỉnh</td></tr>
+                    <tr><td><hr></</tr>
+                    <tr><td><strong>ten:</strong></td><td>${properties.ten || 'Không có'}</td></tr>`;
+                break;
             case 'camau_truso_px':
+                popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Trụ sở phường xã</td></tr>
+                    <tr><td><hr></</tr>
+                    <tr><td><strong>ten:</strong></td><td>${properties.ten || 'Không có'}</td></tr>`;
+                break;
             case 'camau_debien':
                 popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Đê biển</td></tr>
+                    <tr><td><hr></</tr>
                     <tr><td><strong>ten:</strong></td><td>${properties.ten || 'Không có'}</td></tr>`;
                 break;
             case 'camau_tongiao':
+                popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Tôn giáp</td></tr>
+                    <tr><td><hr></</tr>
+                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
+                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
+                break;
             case 'camau_sanbay':
+                popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Sân bay</td></tr>
+                    <tr><td><hr></</tr>
+                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
+                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
+                break;
             case 'camau_poi_polygon':
+                popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Vùng KTVHXH</td></tr>
+                    <tr><td><hr></</tr>
+                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
+                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
+                break;
             case 'camau_poi_point':
+                popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Điểm KTVHXH</td></tr>
+                    <tr><td><hr></</tr>
+                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
+                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
+                break;
             case 'camau_dentinhieu':
+                popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Đèn tín hiệu</td></tr>
+                    <tr><td><hr></</tr>
+                    <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
+                    <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
+                break;
             case 'camau_benxe':
                 popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Bến xe</td></tr>
+                    <tr><td><hr></</tr>
                     <tr><td><strong>fclass:</strong></td><td>${properties.fclass || 'Không có'}</td></tr>
                     <tr><td><strong>name:</strong></td><td>${properties.name || 'Không có'}</td></tr>`;
                 break;
             case 'camau_toanha':
                 popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Tòa nhà</td></tr>
+                    <tr><td><hr></</tr>
                     <tr><td><strong>area_in_me:</strong></td><td>${properties.area_in_me || 'Không có'}</td></tr>
                     <tr><td><strong>confidence:</strong></td><td>${properties.confidence || 'Không có'}</td></tr>`;
                 break;
             case 'camau_thuyhe':
                 popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Thủy hệ</td></tr>
+                    <tr><td><hr></</tr>
                     <tr><td><strong>ten_kenh_rach:</strong></td><td>${properties.ten_kenh_rach || 'Không có'}</td></tr>
                     <tr><td><strong>chieu_dai:</strong></td><td>${properties.chieu_dai || 'Không có'}</td></tr>
                     <tr><td><strong>chieu_rong:</strong></td><td>${properties.chieu_rong || 'Không có'}</td></tr>
@@ -658,18 +708,26 @@ map.on('click', function(e) {
                 break;
             case 'camau_gt':
                 popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Giao thông</td></tr>
+                    <tr><td><hr></</tr>
                     <tr><td><strong>ten_duong:</strong></td><td>${properties.ten_duong || 'Không có'}</td></tr>`;
                 break;
             case 'camau_rung':
                 popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Rừng</td></tr>
+                    <tr><td><hr></</tr>
                     <tr><td><strong>dien_tich:</strong></td><td>${properties.s || 'Không có'}</td></tr>`;
                 break;
             case 'camau_px':
                 popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Phường xã</td></tr>
+                    <tr><td><hr></</tr>
                     <tr><td><strong>ten_dvhc:</strong></td><td>${properties.ten_dvhc || 'Không có'}</td></tr>`;
                 break;
             case 'camau_dao':
                 popupContent += `
+                    <tr><td><strong>Tên lớp dữ liệu:</strong></td><td>Đảo</td></tr>
+                    <tr><td><hr></</tr>
                     <tr><td><strong>ten_vung:</strong></td><td>${properties.ten_vung || 'Không có'}</td></tr>
                     <tr><td><strong>dien_tich:</strong></td><td>${properties.dien_tich || 'Không có'}</td></tr>
                     <tr><td><strong>tinh_thanh:</strong></td><td>${properties.tinh_thanh || 'Không có'}</td></tr>`;
