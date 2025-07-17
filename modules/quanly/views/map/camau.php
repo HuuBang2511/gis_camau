@@ -183,8 +183,12 @@ $this->params['hideHero'] = true;
         height: 30px;
     }
 
-    .leaflet-bottom.leaflet-right, .leaflet-bottom.leaflet-left {
-        margin-bottom: 50px;
+    .leaflet-bottom.leaflet-right {
+        margin-bottom: 70px;
+    }
+
+    .leaflet-bottom.leaflet-left{
+        margin-bottom: 90px;
     }
 }
 
