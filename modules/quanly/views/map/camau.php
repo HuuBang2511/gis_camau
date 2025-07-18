@@ -330,7 +330,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const MAP_CENTER = [9.15848, 105.21332];
     const MAP_ZOOM = 11;
     const layerConfig = [
-        { id: 'wmsPhuongxaLayer', wmsName: 'gis_camau:camau_px', displayName: 'Phường xã', defaultVisible: true, zIndex: 450, popupFields: { 'ten_dvhc': 'Tên ĐVHC', 'dien_tich':'Diện tích', 'dan_so':'Dân số', 'px_sap_nhap':'Danh sách PX sáp nhập' } },
+        { id: 'wmsPhuongxaLayer', wmsName: 'gis_camau:camau_px', displayName: 'Phường xã', defaultVisible: true, zIndex: 450, popupFields: {'ten_dvhc': 'Tên ĐVHC', 'dien_tich': 'Diện tích (Km<sup>2</sup>)', 'dan_so': 'Dân số (người)', 'px_sap_nhap': 'Danh sách PX sáp nhập'} },
         { id: 'wmsVungbien', wmsName: 'gis_camau:camau_vungbien', displayName: 'Vùng biển', defaultVisible: true, zIndex: 450, popupFields: { 'Shape_Length': 'Chu vi', 'Shape_Area': 'Diện tích' } },
         { id: 'wmsTrusotinhLayer', wmsName: 'gis_camau:camau_truso_tinh', displayName: 'Trụ sở tỉnh', defaultVisible: true, zIndex: 651, popupFields: { 'ten': 'Tên' } },
         { id: 'wmsTrusophuongxaLayer', wmsName: 'gis_camau:camau_truso_px', displayName: 'Trụ sở phường xã', defaultVisible: true, zIndex: 651, popupFields: { 'ten': 'Tên' } },
