@@ -279,7 +279,7 @@ $this->params['hideHero'] = true;
     <div id="tabs">
         <div class="tabs-header">
             <a href="<?= Yii::$app->homeUrl ?>" target="_blank">
-                <img src="https://gis.nongdanviet.net/resources/images/logo_vinhloi.jpg" alt="Logo">
+                <img src="https://gis.nongdanviet.net/resources/images/logo_vinhloi.png" alt="Logo">
             </a>
             <button id="back-to-map-mobile-btn"></button>
         </div>
