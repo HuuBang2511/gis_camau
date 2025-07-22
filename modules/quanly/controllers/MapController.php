@@ -30,4 +30,8 @@ class MapController extends QuanlyBaseController
     {
         return $this->render('camau');
     }
+    public function actionVinhloi()
+    {
+        return $this->render('vinhloi');
+    }
 }

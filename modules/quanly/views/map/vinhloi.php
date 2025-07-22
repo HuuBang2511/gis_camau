@@ -279,7 +279,7 @@ $this->params['hideHero'] = true;
     <div id="tabs">
         <div class="tabs-header">
             <a href="<?= Yii::$app->homeUrl ?>" target="_blank">
-                <img src="https://gis.nongdanviet.net/resources/images/logo_map.jpg" alt="Logo">
+                <img src="https://gis.nongdanviet.net/resources/images/logo_vinhloi.jpg" alt="Logo">
             </a>
             <button id="back-to-map-mobile-btn"></button>
         </div>
@@ -327,27 +327,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- CONFIGURATION ---
     const WMS_URL = 'https://nongdanviet.net/geoserver/gis_camau/wms';
-    const MAP_CENTER = [9.15848, 105.21332];
-    const MAP_ZOOM = 11;
+    const MAP_CENTER = [9.36960, 105.73570];
+    const MAP_ZOOM = 14;
     const layerConfig = [
-        { id: 'wmsPhuongxaLayer', wmsName: 'gis_camau:camau_px', displayName: 'Phường xã', defaultVisible: true, zIndex: 450, popupFields: {'ten_dvhc': 'Tên ĐVHC', 'dien_tich': 'Diện tích (m<sup>2</sup>)', 'dan_so': 'Dân số (người)', 'px_sap_nhap': 'Danh sách PX sáp nhập'} },
-        { id: 'wmsVungbien', wmsName: 'gis_camau:camau_vungbien', displayName: 'Vùng biển', defaultVisible: true, zIndex: 350, popupFields: { 'Shape_Length': 'Chu vi', 'dien_tich': 'Diện tích (m<sup>2</sup>)' } },
-        { id: 'wmsTrusotinhLayer', wmsName: 'gis_camau:camau_truso_tinh', displayName: 'Trụ sở tỉnh', defaultVisible: true, zIndex: 651, popupFields: { 'ten': 'Tên' } },
-        { id: 'wmsTrusophuongxaLayer', wmsName: 'gis_camau:camau_truso_px', displayName: 'Trụ sở phường xã', defaultVisible: true, zIndex: 651, popupFields: { 'ten': 'Tên' } },
-        { id: 'wmsDebienLayer', wmsName: 'gis_camau:camau_debien', displayName: 'Đê biển', defaultVisible: true, zIndex: 500, popupFields: { 'ten': 'Tên', 'chieudai': 'Chiều dài (m)', 'xa': 'Địa phận' } },
-        { id: 'wmsTongiaoLayer', wmsName: 'gis_camau:camau_tongiao', displayName: 'Tôn giáo', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên', 'ten_dvhc': 'Tên ĐVHC' } },
-        { id: 'wmsToanhaLayer', wmsName: 'gis_camau:camau_toanha', displayName: 'Tòa nhà', defaultVisible: false, zIndex: 550, popupFields: { 'area_in_me': 'Diện tích (m²)',  } },
-        { id: 'wmsThuyheLayer', wmsName: 'gis_camau:camau_thuyhe', displayName: 'Thủy hệ', defaultVisible: false, zIndex: 550, popupFields: { 'ten_kenh_rach': 'Tên', 'chieu_dai': 'Dài (m)', 'ti_le':'Tỉ lệ', 'xa': 'Tên ĐVHC' } },
-        { id: 'wmsSanbayLayer', wmsName: 'gis_camau:camau_sanbay', displayName: 'Sân bay', defaultVisible: false, zIndex: 550, popupFields: { 'fclass': 'Loại', 'name': 'Tên', 'ten_dvhc': 'Tên ĐVHC'  } },
-        { id: 'wmsRungLayer', wmsName: 'gis_camau:camau_rung', displayName: 'Rừng', defaultVisible: false, zIndex: 550, popupFields: { 'ten_dvhc': 'Địa phận', 'dien_tich': 'Diện tích (m<sup>2</sup>)' } },
-        { id: 'wmsPolvhxhLayer', wmsName: 'gis_camau:camau_poi_polygon', displayName: 'Vùng KTVHXH', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên', 'ten_dvhc': 'Tên ĐVHC' } },
-        { id: 'wmsPoivhxhLayer', wmsName: 'gis_camau:camau_poi_point', displayName: 'Điểm KTVHXH', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên', 'ten_dvhc': 'Tên ĐVHC' } },
-        { id: 'wmsDentinhieuLayer', wmsName: 'gis_camau:camau_dentinhieu', displayName: 'Đèn tín hiệu', defaultVisible: false, zIndex: 652, popupFields: { 'fclass': 'Loại', 'name': 'Tên', 'ten_dvhc': 'Tên ĐVHC' } },
-        { id: 'wmsGiaothongLayer', wmsName: 'gis_camau:camau_gt', displayName: 'Giao thông', defaultVisible: false, zIndex: 600, popupFields: { 'ten_duong': 'Tên đường', 'ten_dvhc': 'Tên ĐVHC' } },
-        { id: 'wmsBenxeLayer', wmsName: 'gis_camau:camau_benxe', displayName: 'Bến xe', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên', 'ten_dvhc': 'Tên ĐVHC' } },
-        { id: 'wmsDaoLayer', wmsName: 'gis_camau:camau_dao', displayName: 'Đảo', defaultVisible: false, zIndex: 400, popupFields: { 'ten_vung': 'Tên', 'dien_tich': 'Diện tích (m<sup>2</sup>)', 'tinh_thanh': 'Tỉnh thành' } },
-        { id: 'wmsBaibienLayer', wmsName: 'gis_camau:camau_baibien', displayName: 'Bãi biển', defaultVisible: false, zIndex: 400, popupFields: { 'name': 'Tên', 'dien_tich': 'Diện tích (m<sup>2</sup>)', 'xa': 'Xã', 'fclass': 'Loại' } },
-        { id: 'wmsHientrangLayer', wmsName: 'gis_camau:caumau_hientrang', displayName: 'Vùng trọng điểm', defaultVisible: false, zIndex: 400, popupFields: { 'name': 'Tên', 'dien_tich': 'Diện tích (m<sup>2</sup>)', 'fclass': 'Loại', 'ten_dvhc': 'Tên ĐVHC' } },
+        { id: 'wmsTrusophuongxaLayer', wmsName: 'gis_camau:vinhloi_truso_px', displayName: 'Trụ sở phường xã', defaultVisible: true, zIndex: 651, popupFields: { 'ten': 'Tên' } },
+        { id: 'wmsTongiaoLayer', wmsName: 'gis_camau:vinhloi_tongiao', displayName: 'Tôn giáo', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên', 'ten_dvhc': 'Tên ĐVHC' } },
+        { id: 'wmsToanhaLayer', wmsName: 'gis_camau:vinhloi_toanha', displayName: 'Tòa nhà', defaultVisible: false, zIndex: 550, popupFields: { 'area_in_me': 'Diện tích (m²)',  } },
+        { id: 'wmsThuyheLayer', wmsName: 'gis_camau:vinhloi_thuyhe', displayName: 'Thủy hệ', defaultVisible: false, zIndex: 550, popupFields: { 'ten_kenh_rach': 'Tên', 'chieu_dai': 'Dài (m)', 'ti_le':'Tỉ lệ', 'xa': 'Tên ĐVHC' } },
+        { id: 'wmsRungLayer', wmsName: 'gis_camau:vinhloi_rung', displayName: 'Rừng', defaultVisible: false, zIndex: 550, popupFields: { 'ten_dvhc': 'Địa phận', 'dien_tich': 'Diện tích (m<sup>2</sup>)' } },
+        { id: 'wmsPolvhxhLayer', wmsName: 'gis_camau:vinhloi_poi_polygon', displayName: 'Vùng KTVHXH', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên', 'ten_dvhc': 'Tên ĐVHC' } },
+        { id: 'wmsGiaothongLayer', wmsName: 'gis_camau:vinhloi_gt', displayName: 'Giao thông', defaultVisible: false, zIndex: 600, popupFields: { 'ten_duong': 'Tên đường', 'ten_dvhc': 'Tên ĐVHC' } },
+        { id: 'wmsHientrangLayer', wmsName: 'gis_camau:vinhloi_hientrang', displayName: 'Vùng trọng điểm', defaultVisible: false, zIndex: 410, popupFields: { 'name': 'Tên', 'dien_tich': 'Diện tích (m<sup>2</sup>)', 'fclass': 'Loại', 'ten_dvhc': 'Tên ĐVHC' } },
+        { id: 'wmsPxcuLayer', wmsName: 'gis_camau:vinhloi_px_cu', displayName: 'Xã cũ', defaultVisible: true, zIndex: 400, popupFields: { 'name': 'Tên', 'type': 'Loại', 'ap': 'Danh sách ấp trực thuộc' } },
     ];
 
     // --- MAP INITIALIZATION ---
