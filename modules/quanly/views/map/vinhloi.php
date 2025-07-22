@@ -328,7 +328,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // --- CONFIGURATION ---
     const WMS_URL = 'https://nongdanviet.net/geoserver/gis_camau/wms';
     const MAP_CENTER = [9.36960, 105.73570];
-    const MAP_ZOOM = 14;
+    const MAP_ZOOM = 13;
     const layerConfig = [
         { id: 'wmsTrusophuongxaLayer', wmsName: 'gis_camau:vinhloi_truso_px', displayName: 'Trụ sở phường xã', defaultVisible: true, zIndex: 651, popupFields: { 'ten': 'Tên' } },
         { id: 'wmsTongiaoLayer', wmsName: 'gis_camau:vinhloi_tongiao', displayName: 'Tôn giáo', defaultVisible: false, zIndex: 650, popupFields: { 'fclass': 'Loại', 'name': 'Tên', 'ten_dvhc': 'Tên ĐVHC' } },
