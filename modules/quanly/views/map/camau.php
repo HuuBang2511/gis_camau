@@ -348,6 +348,7 @@ document.addEventListener('DOMContentLoaded', function () {
         { id: 'wmsDaoLayer', wmsName: 'gis_camau:camau_dao', displayName: 'Đảo', defaultVisible: false, zIndex: 400, popupFields: { 'ten_vung': 'Tên', 'dien_tich': 'Diện tích (m<sup>2</sup>)', 'tinh_thanh': 'Tỉnh thành' } },
         { id: 'wmsBaibienLayer', wmsName: 'gis_camau:camau_baibien', displayName: 'Bãi biển', defaultVisible: false, zIndex: 400, popupFields: { 'name': 'Tên', 'dien_tich': 'Diện tích (m<sup>2</sup>)', 'xa': 'Xã', 'fclass': 'Loại' } },
         { id: 'wmsHientrangLayer', wmsName: 'gis_camau:caumau_hientrang', displayName: 'Vùng trọng điểm', defaultVisible: false, zIndex: 400, popupFields: { 'name': 'Tên', 'dien_tich': 'Diện tích (m<sup>2</sup>)', 'fclass': 'Loại', 'ten_dvhc': 'Tên ĐVHC' } },
+        { id: 'wmsTpcamau_qh_chungLayer', wmsName: 'gis_camau:tpcamau_qh_chung', displayName: 'Quy hoạch TP Cà Mau tới năm 2030', defaultVisible: false, zIndex: 500, popupFields: { 'Level': 'Level', 'Shape_Area': 'Diện tích (m<sup>2</sup>)', 'Shape_Leng': 'Chu vi (m)', 'RefName_2': 'Tên' } },
     ];
 
     // --- MAP INITIALIZATION ---
